@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ZhHPnMtOmxdOgfovJJW7j1/Vrw3GxgOHHp3zYiifEW4='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://jealzqqhdrsryuuvtxya.supabase.co wss://jealzqqhdrsryuuvtxya.supabase.co; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'self'; manifest-src 'self'; worker-src 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
 <title>Mloza-Construction</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Mloza-Construction — Ingénierie & construction aux Comores. Bureau d'études et entreprise générale : conception structurelle, gestion de projet et réalisation clé en main.">
 <meta name="theme-color" content="#a65f1f">
 <link rel="icon" type="image/png" href="logos.png">
@@ -578,6 +580,225 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
 .partners .logo-btn{display:block;margin:10px auto 0;background:var(--bronze);color:#fff;border:0;padding:8px 12px;font:700 11px var(--f-title);text-transform:uppercase;letter-spacing:.4px;cursor:pointer}
 .partners .logo-btn:hover{background:var(--bronze-h)}
 
+/* =====================================================================
+   VISIONNEUSE (fiche produit, articles, galerie, plein écran)
+   ===================================================================== */
+.vw{display:flex;flex-direction:column;gap:10px;height:100%;min-height:0}
+.vw-stage{position:relative;flex:1;min-height:260px;overflow:hidden;background:#f1f2f6;touch-action:none;cursor:zoom-in;user-select:none;-webkit-user-select:none}
+.vw-stage.zoomed{cursor:grab}
+.vw-stage.zoomed:active{cursor:grabbing}
+.vw-media{position:absolute;inset:0;display:grid;place-items:center}
+.vw-media img{width:100%;height:100%;object-fit:contain;transform-origin:center;transition:transform .12s ease-out;will-change:transform;-webkit-user-drag:none}
+.vw-media video,.vw-media iframe{width:100%;height:100%;border:0;background:#000}
+.vw.is-video .vw-stage{cursor:default;touch-action:auto}
+.vw.is-video .vw-bar [data-z="in"],.vw.is-video .vw-bar [data-z="out"],.vw.is-video .vw-bar [data-z="fit"],.vw.is-video .vw-pct,.vw.is-video .vw-hint{display:none}
+.vw-empty{font:12px var(--f-mono);color:#8a90a3}
+.vw-link{background:var(--bronze);color:#fff;padding:14px 20px;font:700 14px var(--f-title);text-transform:uppercase}
+.vw-link:hover{color:#fff;background:var(--bronze-h)}
+.vw-nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:var(--ink);font-size:28px;line-height:1;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.2);z-index:3;display:grid;place-items:center;padding-bottom:4px}
+.vw-nav:hover{background:var(--bronze);color:#fff}
+.vw-prev{left:10px}.vw-next{right:10px}
+.vw.single .vw-nav{display:none}
+.vw-bar{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;background:rgba(28,25,21,.82);color:#fff;padding:4px;z-index:3;white-space:nowrap}
+.vw-bar button{background:none;border:0;color:#fff;width:34px;height:34px;font-size:18px;cursor:pointer;display:grid;place-items:center}
+.vw-bar button:hover{background:var(--bronze)}
+.vw-pct,.vw-count{font:600 12px var(--f-body);padding:0 6px;min-width:44px;text-align:center}
+.vw-count:empty{display:none}
+.vw-hint{position:absolute;left:10px;top:10px;font-size:11px;color:var(--muted);background:rgba(255,255,255,.85);padding:4px 8px;pointer-events:none;z-index:2}
+.vw-thumbs{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.vw-thumbs:empty{display:none}
+.vw-thumbs .thumb-b{position:relative;width:64px;height:48px;opacity:.7}
+.vw-thumbs .thumb-b .tv{display:grid;place-items:center;width:100%;height:100%;background:var(--ink);color:#fff}
+.vw-thumbs .tplay{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-style:normal;font-size:16px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+
+/* Fiche produit : grande visionneuse à gauche */
+.prod-modal{width:min(1100px,100%);grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+.pm-media{padding:16px;background:#fafafb;display:flex;min-height:min(70vh,560px)}
+.pm-media .vw{flex:1}
+.pm-body .btn--cart{display:flex;justify-content:center;gap:8px;font-size:14px;padding:16px;background:var(--bronze)}
+.pm-body .btn--cart:hover{background:var(--ink)}
+.pm-alt a{color:var(--green-h);font-weight:600}
+
+/* Détail article / projet */
+.d-viewer{height:min(56vh,440px);padding:14px 14px 0}
+.d-viewer .vw-stage{min-height:200px}
+
+/* Plein écran */
+.lightbox{position:fixed;inset:0;z-index:250;background:rgba(10,9,8,.95);display:flex;flex-direction:column;padding:calc(56px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.lightbox[hidden]{display:none}
+.lightbox #lb-viewer{flex:1;min-height:0}
+.lightbox .vw-stage{background:transparent}
+.lightbox .vw-hint{background:rgba(0,0,0,.5);color:#ddd}
+.lb-close{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:26px;cursor:pointer;z-index:5}
+.lb-close:hover{background:var(--bronze)}
+
+/* Galerie */
+.gallery{background:#fff}
+.gal-lead{color:var(--muted);margin:12px auto 0;max-width:560px}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:20px}
+.media-item{margin:0;background:#fff;border:1px solid var(--line);cursor:pointer;transition:box-shadow .2s,transform .2s;position:relative}
+.media-item:hover{box-shadow:0 18px 40px rgba(28,25,21,.12);transform:translateY(-3px)}
+.media-ph{aspect-ratio:4/3;overflow:hidden}
+.play-ov{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;background:rgba(166,95,31,.92);color:#fff;display:grid;place-items:center;font-size:24px;box-shadow:0 0 0 10px rgba(166,95,31,.25);pointer-events:none}
+.ph .play-ov{font:24px var(--f-body);color:#fff}
+.media-item figcaption{padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.media-item figcaption b{font:700 16px var(--f-title);color:var(--ink)}
+.media-item figcaption span{font-size:14px;color:var(--muted);line-height:1.5}
+.gallery .add-btn{min-height:200px}
+.play.has-video,.why-play.has-video{animation:pulse 1.6s ease-in-out infinite}
+.vid-tool{position:absolute;z-index:6;background:rgba(28,25,21,.9);color:#fff;border:0;padding:10px 14px;font:700 12px var(--f-title);text-transform:uppercase;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.vid-tool:hover{background:var(--bronze)}
+.hero-play{position:relative;flex-direction:column;align-items:center;gap:40px}
+.hero-play .vid-tool{position:static}
+.why-photo .vid-tool{right:16px;bottom:96px}
+
+/* Champ vidéo des formulaires */
+.vid-pick{display:flex;flex-direction:column;gap:8px}
+.vid-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.vid-row label{border:1px dashed var(--bronze);color:var(--bronze-d);padding:10px 14px;cursor:pointer;font:700 12px var(--f-title);text-transform:uppercase}
+.vid-row button{background:none;border:0;color:var(--err);cursor:pointer;font-size:13px;padding:0}
+.vid-info{font-size:12px;color:var(--muted)}
+.img-pick .recrop{color:var(--bronze-d)!important;font-weight:600}
+
+/* =====================================================================
+   ENCADREMENT DES PHOTOS
+   ===================================================================== */
+.crop-modal{z-index:220}
+.crop-box{width:min(820px,100%)}
+.crop-ratios{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.crop-ratios button,.crop-tools button{border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 12px;font:600 13px var(--f-title);cursor:pointer}
+.crop-ratios button[aria-pressed="true"]{background:var(--bronze);color:#fff;border-color:var(--bronze)}
+.crop-ratios button:hover,.crop-tools button:hover{border-color:var(--bronze)}
+.crop-stage{display:grid;place-items:center;background:repeating-conic-gradient(#e9eaee 0 25%,#f6f7f9 0 50%) 0 0/18px 18px;padding:14px;min-height:240px}
+.crop-stage canvas{max-width:100%;cursor:grab;touch-action:none;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.crop-stage canvas:active{cursor:grabbing}
+.crop-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.crop-zoom{display:flex;align-items:center;gap:8px;font:600 13px var(--f-title);flex:1;min-width:200px}
+.crop-zoom input{flex:1;accent-color:var(--bronze)}
+.crop-bgs{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--muted)}
+.crop-bgs button{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
+.crop-bgs button[aria-pressed="true"]{border-color:var(--bronze);box-shadow:0 0 0 2px rgba(166,95,31,.3)}
+.crop-bgs .bg-tr{display:none;background:repeating-conic-gradient(#ccc 0 25%,#fff 0 50%) 0 0/8px 8px}
+.crop-bgs.png .bg-tr{display:inline-block}
+
+/* =====================================================================
+   PANIER
+   ===================================================================== */
+.cart-btn{position:relative;display:flex;align-items:center;gap:8px;background:var(--ink-3);color:#fff;border:1px solid var(--ink-4);padding:12px 14px;font:700 13px var(--f-title);text-transform:uppercase;letter-spacing:.4px;cursor:pointer}
+.cart-btn:hover{background:var(--bronze);border-color:var(--bronze)}
+.cart-count{background:var(--bronze);color:#fff;border-radius:10px;min-width:20px;height:20px;padding:0 6px;display:inline-grid;place-items:center;font:700 11px var(--f-body)}
+.cart-btn:hover .cart-count{background:#fff;color:var(--bronze)}
+.cart-btn--mob{width:44px;height:44px;padding:0;justify-content:center;font-size:18px;background:var(--bronze)!important;border:0}
+.cart-btn--mob .cart-count{position:absolute;top:-6px;right:-6px;background:var(--ink)}
+.cart-btn.bump{animation:bump .5s ease}
+@keyframes bump{30%{transform:scale(1.18)}60%{transform:scale(.95)}}
+.prod-btns button.add-cart{flex:1.4;background:var(--green);color:#fff}
+.prod-btns button.add-cart:hover{background:var(--green-h)}
+.cart-fab{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:40;width:58px;height:58px;border-radius:50%;border:0;background:var(--bronze);color:#fff;font-size:22px;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.3);display:none;place-items:center}
+.cart-fab .cart-count{position:absolute;top:-4px;right:-4px;background:var(--ink)}
+body.has-cart .cart-fab{display:grid}
+body.is-admin .cart-fab{bottom:calc(154px + env(safe-area-inset-bottom,0px))}
+@media (min-width:861px){body.has-cart .cart-fab{bottom:calc(24px + env(safe-area-inset-bottom,0px))}body.is-admin.has-cart .cart-fab{bottom:calc(90px + env(safe-area-inset-bottom,0px))}}
+.cart{position:fixed;inset:0;z-index:180;background:rgba(14,12,10,.6);display:flex;justify-content:flex-end}
+.cart[hidden]{display:none}
+.cart-panel{background:#fff;width:min(460px,100%);height:100%;display:flex;flex-direction:column;box-shadow:-20px 0 50px rgba(0,0,0,.3);animation:slideIn .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes slideIn{from{transform:translateX(40px);opacity:.4}}
+.cart-head{display:flex;justify-content:space-between;align-items:center;padding:calc(18px + env(safe-area-inset-top,0px)) 22px 18px;border-bottom:1px solid var(--line);background:var(--ink);color:#fff}
+.cart-head h3{font:700 20px var(--f-title)}
+.cart-close{width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:22px;cursor:pointer}
+.cart-close:hover{background:var(--bronze)}
+.cart-list{list-style:none;margin:0;padding:6px 22px;overflow:auto;flex:1}
+.cart-line{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);align-items:start}
+.cl-img{width:64px;height:64px;background:var(--light);overflow:hidden;display:grid;place-items:center;font-size:24px}
+.cl-img img{width:100%;height:100%;object-fit:cover}
+.cl-info{display:flex;flex-direction:column;gap:3px;min-width:0}
+.cl-info b{font:700 15px var(--f-title);color:var(--ink)}
+.cl-info small{font-size:12px;color:var(--muted)}
+.cl-note{font-style:italic}
+.cl-qty{display:flex;align-items:center;margin-top:6px;gap:0}
+.cl-qty button{width:30px;height:30px;border:1px solid var(--line);background:var(--light);cursor:pointer;font-size:16px}
+.cl-qty input{width:44px;height:30px;border:1px solid var(--line);border-left:0;border-right:0;text-align:center;font:700 14px var(--f-title)}
+.cl-qty span{font-size:12px;color:var(--muted);margin-left:8px}
+.cl-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;font-size:14px;white-space:nowrap}
+.cl-right small{color:var(--muted)}
+.cl-del{background:none;border:0;color:var(--err);cursor:pointer;font-size:12px;padding:0}
+.cart-empty{text-align:center;color:var(--muted);padding:50px 10px;line-height:1.8}
+.cart-empty span{display:block;font-size:42px;opacity:.4}
+.cart-empty a{font-weight:700}
+.cart-foot{border-top:1px solid var(--line);padding:16px 22px calc(18px + env(safe-area-inset-bottom,0px));background:#fafafb;max-height:62vh;overflow:auto}
+.cart-total{font-size:15px;color:var(--ink);margin-bottom:10px}
+.cart-total b{color:var(--bronze);font:700 18px var(--f-title)}
+.cart-total small{color:var(--muted)}
+.cart-sub{font:700 13px var(--f-title);text-transform:uppercase;letter-spacing:.4px;color:var(--ink);margin:4px 0 8px}
+.cart-fields{display:grid;gap:8px}
+.cart-fields input,.cart-fields textarea{width:100%;padding:11px 12px;border:1px solid var(--line);background:#fff;font-size:15px;outline:none;color:var(--text);resize:vertical}
+.cart-fields :is(input,textarea):focus{border-color:var(--bronze)}
+.cart-fields .invalid{border-color:var(--err)}
+.cart-send{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:12px;padding:15px;font-size:14px;text-align:center}
+.cart-send small{font:600 12px var(--f-body);opacity:.9;text-transform:none;letter-spacing:0}
+.cart-done{margin-top:10px;background:rgba(37,163,90,.1);color:var(--green-h);padding:10px 12px;font-size:14px;line-height:1.5}
+.cart-empty-btn{display:block;margin:10px auto 0;color:var(--muted)!important;font-size:12px!important}
+.cart-snack{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;pointer-events:none;z-index:190;display:flex;align-items:center;gap:14px;background:var(--ink);color:#fff;padding:10px 10px 10px 18px;box-shadow:0 14px 34px rgba(0,0,0,.35);transition:opacity .25s,transform .25s;max-width:calc(100vw - 24px);font-size:14px}
+.cart-snack.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.cart-snack button{background:var(--bronze);color:#fff;border:0;padding:10px 14px;font:700 12px var(--f-title);text-transform:uppercase;cursor:pointer;white-space:nowrap}
+body.is-admin .cart-snack{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+.msg--order{border-left:4px solid var(--green)}
+.msg--order .tagm{background:rgba(37,163,90,.12);color:var(--green-h)}
+@media (max-width:860px){
+  .prod-modal{grid-template-columns:1fr}
+  .pm-media{min-height:min(48vh,380px);padding:10px}
+  .vw-nav{width:40px;height:40px;font-size:24px}
+  .vw-hint{display:none}
+  .d-viewer{height:min(42vh,320px)}
+  .cart-snack{left:12px;right:12px;transform:translateY(30px)}
+  .cart-snack.show{transform:none}
+  .crop-box{padding:22px 16px 18px}
+}
+/* Correctifs visionneuse / superpositions */
+.vw-media img,.vw-media video,.vw-media iframe{position:absolute;inset:0;width:100%;height:100%;max-width:none}
+.vw-media .vw-link,.vw-media .vw-empty{position:relative}
+.adm-bar{z-index:55}
+.cart{z-index:195}
+.cart .pm-alt{margin:10px 0 0}
+
+
+/* =====================================================================
+   LOGOS PARTENAIRES : affichage net, en couleurs, cliquables
+   ===================================================================== */
+.partners{flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:22px;padding:30px 34px}
+.partners>b{text-align:center}
+.partners #partners{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px;justify-content:center}
+.partners .p-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:124px;padding:12px 14px;border:1px dashed var(--ink-4);background:transparent;color:#9a9186;font:11px var(--f-mono);text-align:center;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.partners .p-tile.p-logo{background:#fff;border:1px solid #fff;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.partners .p-logo img{max-height:88px;max-width:100%;width:auto;height:auto;object-fit:contain;filter:none;image-rendering:auto}
+.partners a.p-tile:hover,.partners a.p-tile:focus-visible{transform:translateY(-3px);box-shadow:0 12px 26px rgba(0,0,0,.35);border-color:var(--bronze-l)}
+.partners .p-tile .p-visit{border:0;padding:0;font:600 11px var(--f-body);color:var(--bronze);opacity:0;transition:opacity .2s;letter-spacing:.2px}
+.partners a.p-tile:not(.p-logo) .p-visit{color:var(--bronze-l)}
+.partners a.p-tile:hover .p-visit,.partners a.p-tile:focus-visible .p-visit{opacity:1}
+@media (hover:none){.partners .p-tile .p-visit{opacity:1}}
+.partners .p-tile em{color:inherit}
+body.editing .partners .p-tile{padding-top:48px;min-height:180px}
+.partners .p-tile .p-edit{display:flex;flex-direction:column;gap:6px;border:0;padding:0;width:100%;margin-top:6px}
+.partners .p-tile .p-edit .logo-btn{margin:0;width:100%}
+.partners .logo-btn--link{background:var(--ink-3)!important}
+.partners .p-tile.p-logo .logo-btn--link{background:var(--ink)!important}
+.partners .logo-btn--link:hover{background:var(--green)!important}
+.partners .add-btn--inline{min-height:104px}
+
+/* =====================================================================
+   SÉCURITÉ (double authentification, mot de passe)
+   ===================================================================== */
+#adm-sec.warn{background:#7a3d12}
+#adm-sec.warn::after{content:"!";display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:#f5b041;color:#1c1915;font-size:11px;margin-left:4px}
+.sec-card{border:1px solid var(--line);padding:16px 18px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px}
+.sec-card b{font:700 16px var(--f-title);color:var(--ink)}
+.sec-card p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+.sec-card.ok{border-left:4px solid var(--green);background:rgba(37,163,90,.06)}
+.sec-card.warn{border-left:4px solid #e0a020;background:rgba(224,160,32,.08)}
+.sec-card .btn{align-self:flex-start}
+.sec-qr{width:200px;height:200px;align-self:center;background:#fff;padding:8px;border:1px solid var(--line)}
+.sec-secret code{font:13px var(--f-mono);background:var(--light);padding:2px 6px;word-break:break-all}
+.mfa-input{font:700 26px var(--f-mono)!important;letter-spacing:8px;text-align:center}
 </style>
 </head>
 <body>
@@ -615,12 +836,14 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
         <div class="nav-links" id="nav-links"></div>
         <div class="nav-actions">
           <button class="search" type="button" aria-label="Voir les matériaux" data-goto="#materiaux">⌕</button>
+          <button class="cart-btn" type="button" data-open-cart aria-label="Ouvrir le panier">🛒 Panier <span class="cart-count hidden">0</span></button>
           <a class="btn btn--green" data-link="wa" href="https://wa.me/2693409852" target="_blank" rel="noopener">WhatsApp</a>
           <a class="btn btn--warm" href="#devis"><span data-t="cta_devis">Demander un devis →</span></a>
         </div>
       </nav>
     </div>
     <div class="mob-actions">
+      <button type="button" class="cart-btn cart-btn--mob" data-open-cart aria-label="Ouvrir le panier">🛒<span class="cart-count hidden">0</span></button>
       <a data-link="wa" href="https://wa.me/2693409852" target="_blank" rel="noopener" aria-label="WhatsApp">WA</a>
       <button type="button" id="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="drawer">☰</button>
     </div>
@@ -651,7 +874,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
         <a class="btn btn--lg btn--outline" href="#services"><span data-t="hero_btn2">Nos services →</span></a>
       </div>
     </div>
-    <div class="hero-play"><button class="play" type="button" data-video aria-label="Voir la vidéo de présentation">▶</button></div>
+    <div class="hero-play"><button class="play" type="button" data-video="hero" aria-label="Voir la vidéo de présentation">▶</button></div>
   </div>
 </section>
 
@@ -711,6 +934,18 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
   </div>
 </section>
 
+<!-- GALERIE : photos et vidéos publicitaires -->
+<section class="sec gallery" id="galerie">
+  <div class="container">
+    <div class="center reveal">
+      <div class="tag"><span data-t="gal_tag">Galerie &amp; publicités</span></div>
+      <h2 class="h2" data-t="gal_title">Nos réalisations en images</h2>
+      <p class="gal-lead" data-t="gal_p">Photos de chantiers, vidéos de présentation et nouveautés de Mloza-Construction.</p>
+    </div>
+    <div class="media-grid" id="media-grid"></div>
+  </div>
+</section>
+
 <!-- MATÉRIAUX -->
 <section class="sec mat" id="materiaux">
   <div class="container">
@@ -746,7 +981,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
     </div>
     <div class="why-photo ph reveal" data-img="why">
       <span>photo : bétonnière / ouvrier en gilet</span>
-      <button class="why-play" type="button" data-video aria-label="Voir la vidéo de présentation">▶</button>
+      <button class="why-play" type="button" data-video="why" aria-label="Voir la vidéo de présentation">▶</button>
     </div>
   </div>
 </section>
@@ -881,6 +1116,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
   <span class="who"><i></i>Administrateur</span>
   <button type="button" id="adm-edit" aria-pressed="false">✎ Modifier le site</button>
   <button type="button" id="adm-msgs">✉ Demandes <span class="count" id="adm-count">0</span></button>
+  <button type="button" id="adm-sec" title="Double authentification et mot de passe">🔒 Sécurité</button>
   <button type="button" id="adm-logout">Déconnexion</button>
   <span class="demo hidden" id="adm-demo">Mode démo : modifications enregistrées sur cet appareil uniquement.</span>
 </div>
@@ -889,7 +1125,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
 <div class="modal modal--prod" id="prod-modal" hidden>
   <div class="prod-modal" role="dialog" aria-modal="true" aria-labelledby="pm-name">
     <button class="close" type="button" data-close aria-label="Fermer">×</button>
-    <div class="zoom ph" id="zoom"><div class="zoom-in" id="zoom-in"></div><span class="zoom-hint" id="zoom-hint">Cliquez pour zoomer</span><div class="pm-thumbs" id="pm-thumbs"></div></div>
+    <div class="pm-media"><div id="pm-viewer"></div></div>
     <div class="pm-body">
       <span class="pm-cat" id="pm-cat"></span>
       <h3 id="pm-name"></h3>
@@ -899,10 +1135,9 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
         <div class="qty-l" id="pm-unit"></div>
         <div class="qty"><button type="button" id="q-dec" aria-label="Diminuer">−</button><input id="q-val" inputmode="numeric" value="1" aria-label="Quantité"><button type="button" id="q-inc" aria-label="Augmenter">+</button></div>
       </div>
-      <textarea id="pm-note" rows="3" placeholder="Précisions : lieu de livraison, délai…" aria-label="Précisions"></textarea>
-      <div class="wa-prev" id="wa-prev"></div>
-      <a class="btn btn--green" id="pm-wa" href="#" target="_blank" rel="noopener">Envoyer sur WhatsApp →</a>
-      <p class="pm-alt">ou envoyer au <a id="pm-wa2" href="#" target="_blank" rel="noopener"><span id="pm-wa2-n">+269 440 98 52</span></a></p>
+      <textarea id="pm-note" rows="2" placeholder="Précisions (couleur, dimension, délai…)" aria-label="Précisions"></textarea>
+      <button class="btn btn--cart" type="button" id="pm-add">🛒 Ajouter au panier</button>
+      <p class="pm-alt">ou commander tout de suite sur WhatsApp : <a id="pm-wa" href="#" target="_blank" rel="noopener"><span data-t="phone">+269 340 98 52</span></a> · <a id="pm-wa2" href="#" target="_blank" rel="noopener"><span id="pm-wa2-n">+269 440 98 52</span></a></p>
     </div>
   </div>
 </div>
@@ -911,7 +1146,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
 <div class="modal" id="video-modal" hidden>
   <div class="video ph ph--dark" role="dialog" aria-modal="true" aria-label="Vidéo de présentation">
     <button class="close" type="button" data-close aria-label="Fermer">×</button>
-    <span>vidéo de présentation</span>
+    <span>La vidéo de présentation sera bientôt disponible.</span>
   </div>
 </div>
 
@@ -919,8 +1154,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
 <div class="modal" id="detail-modal" hidden>
   <div class="detail" role="dialog" aria-modal="true" aria-labelledby="d-title">
     <button class="close" type="button" data-close aria-label="Fermer">×</button>
-    <div class="d-img ph" id="d-img"><span>photo</span></div>
-    <div class="d-thumbs" id="d-thumbs"></div>
+    <div class="d-viewer" id="d-viewer"></div>
     <div class="d-body"><div class="d-meta" id="d-meta"></div><h3 id="d-title"></h3><div class="d-text" id="d-text"></div></div>
   </div>
 </div>
@@ -948,7 +1182,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
       <button type="button" class="linkish" id="l-forgot">Mot de passe oublié ?</button>
       <button class="btn" type="submit" id="l-submit">Se connecter →</button>
     </div>
-    <div class="adm-note hidden" id="login-demo"><b>Mode démo</b> (Supabase pas encore configuré).<br>E-mail : <b>mlozabdou2012@gmail.com</b> · Mot de passe : <b>mloza2026</b></div>
+    <div class="adm-note hidden" id="login-demo"><b>Mode démo</b> (Supabase pas encore configuré).<br>E-mail : <b id="demo-email"></b> · Mot de passe : <b id="demo-pass"></b></div>
   </form>
 </div>
 
@@ -965,6 +1199,27 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
     <p class="adm-err" id="rec-err" hidden></p>
     <div class="adm-actions"><button class="btn" type="submit">Enregistrer</button></div>
   </form>
+</div>
+
+<!-- Double authentification : code à la connexion -->
+<div class="modal" id="mfa-modal" hidden>
+  <form class="adm-modal" id="mfa-form" role="dialog" aria-modal="true" aria-labelledby="mfa-t" novalidate style="width:min(440px,100%)">
+    <h3 id="mfa-t">🔒 Code de sécurité</h3>
+    <p class="sub">Ouvrez votre application d'authentification et saisissez le code à 6 chiffres affiché pour Mloza-Construction.</p>
+    <div class="adm-field"><label for="mfa-code">Code à 6 chiffres</label><input id="mfa-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" class="mfa-input"></div>
+    <p class="adm-err" id="mfa-err" hidden></p>
+    <div class="adm-actions"><button class="btn btn--ghost" type="button" id="mfa-cancel">Annuler</button><button class="btn" type="submit">Valider</button></div>
+  </form>
+</div>
+
+<!-- Panneau Sécurité de l'administrateur -->
+<div class="modal" id="sec-modal" hidden>
+  <div class="adm-modal" role="dialog" aria-modal="true" aria-labelledby="sec-t" style="width:min(560px,100%)">
+    <button class="close" type="button" data-close aria-label="Fermer">×</button>
+    <h3 id="sec-t">🔒 Sécurité du compte</h3>
+    <p class="sub">Protégez l'accès à l'administration du site.</p>
+    <div id="sec-body"></div>
+  </div>
 </div>
 
 <!-- Formulaire d'ajout / modification -->
@@ -1004,6 +1259,66 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
   </div>
 </div>
 
+<!-- Visionneuse plein écran -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Visionneuse">
+  <button class="lb-close" type="button" data-lb-close aria-label="Fermer la visionneuse">×</button>
+  <div id="lb-viewer"></div>
+</div>
+
+<!-- Panier -->
+<div class="cart" id="cart" hidden>
+  <aside class="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cart-t">
+    <header class="cart-head"><h3 id="cart-t">🛒 Mon panier</h3><button class="cart-close" type="button" data-cart-close aria-label="Fermer le panier">×</button></header>
+    <ul class="cart-list" id="cart-list"></ul>
+    <div class="cart-foot">
+      <div class="cart-total" id="cart-total"></div>
+      <div id="cart-form">
+        <p class="cart-sub">Vos coordonnées pour la livraison</p>
+        <div class="cart-fields">
+          <input id="c-name" autocomplete="name" placeholder="Nom complet *" aria-label="Nom complet" maxlength="120">
+          <input id="c-phone" type="tel" autocomplete="tel" placeholder="Téléphone *" aria-label="Téléphone" maxlength="40">
+          <input id="c-place" placeholder="Lieu de livraison (ville, quartier)" aria-label="Lieu de livraison" maxlength="160">
+          <textarea id="c-note" rows="2" placeholder="Remarque (facultatif)" aria-label="Remarque" maxlength="800"></textarea>
+        </div>
+        <p class="form-err" id="cart-err" hidden>Indiquez votre nom et un numéro de téléphone pour que nous puissions vous rappeler.</p>
+        <a class="btn btn--green cart-send" id="cart-wa1" href="#" target="_blank" rel="noopener">Envoyer la commande sur WhatsApp →<small id="cart-wa1-n">+269 340 98 52</small></a>
+        <p class="pm-alt">ou l'envoyer au <a id="cart-wa2" href="#" target="_blank" rel="noopener"><span id="cart-wa2-n">+269 440 98 52</span></a></p>
+        <div class="cart-done hidden" id="cart-done">✓ Commande transmise. Nous vous rappelons pour confirmer prix et livraison. <button type="button" class="linkish" id="cart-clear">Vider le panier</button></div>
+        <button type="button" class="linkish cart-empty-btn" id="cart-empty-btn">Vider le panier</button>
+      </div>
+    </div>
+  </aside>
+</div>
+<div class="cart-snack" id="cart-snack" role="status" aria-live="polite"><span id="cart-snack-txt"></span><button type="button" id="cart-snack-btn">Voir le panier →</button></div>
+<button class="cart-fab" type="button" data-open-cart aria-label="Ouvrir le panier">🛒<span class="cart-count hidden">0</span></button>
+
+<!-- Encadrement des photos (administrateur) -->
+<div class="modal crop-modal" id="crop-modal" hidden>
+  <div class="adm-modal crop-box" role="dialog" aria-modal="true" aria-labelledby="crop-title">
+    <h3 id="crop-title">Encadrer la photo</h3>
+    <p class="sub">Glissez la photo pour la placer, zoomez avec le curseur (ou la molette / deux doigts). <b id="crop-count"></b></p>
+    <div class="crop-ratios" id="crop-ratios" role="group" aria-label="Format du cadre"></div>
+    <div class="crop-stage" id="crop-stage"><canvas id="crop-canvas" aria-label="Aperçu du cadrage"></canvas></div>
+    <div class="crop-tools">
+      <label class="crop-zoom">Zoom <input type="range" id="crop-zoom" min="0" max="100" value="0" aria-label="Zoom"></label>
+      <button type="button" id="crop-fit" title="Voir toute la photo dans le cadre">Image entière</button>
+      <button type="button" id="crop-fill" title="Remplir tout le cadre">Remplir le cadre</button>
+      <button type="button" id="crop-rot" title="Tourner de 90°">⟳ Tourner</button>
+    </div>
+    <div class="crop-bgs" id="crop-bgs" role="group" aria-label="Couleur du fond">Fond :
+      <button type="button" data-bg="#ffffff" style="background:#fff" aria-label="Fond blanc"></button>
+      <button type="button" data-bg="#1c1915" style="background:#1c1915" aria-label="Fond noir"></button>
+      <button type="button" data-bg="#f5ebe0" style="background:#f5ebe0" aria-label="Fond beige"></button>
+      <button type="button" data-bg="transparent" class="bg-tr" aria-label="Fond transparent"></button>
+    </div>
+    <div class="adm-actions">
+      <button class="btn btn--ghost" type="button" data-crop-cancel>Annuler</button>
+      <button class="btn btn--ghost hidden" type="button" id="crop-keep">Garder sans recadrer</button>
+      <button class="btn" type="button" id="crop-ok">✓ Utiliser cette photo</button>
+    </div>
+  </div>
+</div>
+
 <input type="file" id="img-input" accept="image/*" hidden>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -1032,12 +1347,16 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
      6. Authentication → URL Configuration → Site URL : l'adresse de votre site
         (utile pour le lien « Mot de passe oublié »)
      ---------------------------------------------------------------------- */
-  var SUPABASE_URL = 'https://jealzqqhdrsryuuvtxya.supabase.co';        // ex. 'https://abcdefghijkl.supabase.co'
-  var SUPABASE_ANON_KEY = 'sb_publishable__aSpvMY9AU66fVocbZkzqA_u9H5okef';   // clé publique « publishable » / « anon public »
+  /* SÉCURITÉ : ces deux valeurs sont PUBLIQUES par conception (clé « publishable »).
+     Elles ne donnent aucun droit d'écriture : ce sont les règles de la base
+     (supabase-securite.sql) qui protègent les données. Ne mettez JAMAIS ici
+     la clé « service_role » / « secret », ni un mot de passe. */
+  var SUPABASE_URL = 'https://jealzqqhdrsryuuvtxya.supabase.co';
+  var SUPABASE_ANON_KEY = 'sb_publishable__aSpvMY9AU66fVocbZkzqA_u9H5okef';
 
-  /* Identifiants du mode démo uniquement (ignorés quand Supabase est configuré) */
-  var DEMO_EMAIL = 'mlozabdou2012@gmail.com';
-  var DEMO_PASS = 'mloza2026';
+  /* Mode démo (aperçu uniquement) : vide sur le vrai site, donc aucune connexion démo possible */
+  var DEMO_EMAIL = '';
+  var DEMO_PASS = '';
 
   /* ====================================================================== */
 
@@ -1049,7 +1368,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ============ CONTENU PAR DÉFAUT ============ */
-  var NAV = [['Accueil', '#accueil'], ['À propos', '#apropos'], ['Services', '#services'], ['Projets', '#projets'], ['Matériaux', '#materiaux'], ['Équipe', '#equipe'], ['Actualités', '#actualites']];
+  var NAV = [['Accueil', '#accueil'], ['À propos', '#apropos'], ['Services', '#services'], ['Projets', '#projets'], ['Galerie', '#galerie'], ['Matériaux', '#materiaux'], ['Équipe', '#equipe'], ['Actualités', '#actualites']];
 
   var DEFAULTS = {
     services: [
@@ -1095,6 +1414,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
       { date: '30 Août 2026', cat: 'Innovation', read: '6 min', title: "Béton bas carbone : nos premiers retours d'expérience terrain", body: '' }
     ],
     categories: [{ name: 'Ciment & béton' }, { name: 'Fer & acier' }, { name: 'Briques & parpaings' }, { name: 'Sable & gravier' }, { name: 'Toiture' }, { name: 'Bois & coffrage' }],
+    media: [],
     partners: [{ name: 'logo partenaire' }, { name: 'logo partenaire' }, { name: 'logo partenaire' }, { name: 'logo partenaire' }]
   };
   var COLLS = Object.keys(DEFAULTS);
@@ -1120,9 +1440,13 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
   /* ============ STOCKAGE ============ */
   var useOnline = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
 
-  function loadScript(src) {
-    return new Promise(function (res, rej) { var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = function () { rej(new Error('script ' + src)); }; document.head.appendChild(s); });
+  /* Charge une bibliothèque externe avec contrôle d'intégrité (SRI) : si le fichier
+     du CDN était modifié par un pirate, le navigateur refuserait de l'exécuter. */
+  function loadScript(src, integrity) {
+    return new Promise(function (res, rej) { var s = document.createElement('script'); s.src = src; if (integrity) { s.integrity = integrity; s.crossOrigin = 'anonymous'; } s.referrerPolicy = 'no-referrer'; s.onload = res; s.onerror = function () { rej(new Error('script ' + src)); }; document.head.appendChild(s); });
   }
+  /* Protection contre l'affichage du site dans la page d'un autre site (piège au clic) */
+  var framed = (function () { try { return window.top !== window.self; } catch (e) { return true; } })();
   function sortByOrder(a) { return a.sort(function (x, y) { return (x.order || 0) - (y.order || 0); }); }
 
   /* --- Mode démo : navigateur de l'administrateur --- */
@@ -1162,28 +1486,34 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
       listMessages: function () { return Promise.resolve((mem.messages || []).map(function (m) { return Object.assign({}, m, { date: new Date(m.createdAt) }); })); },
       deleteMessage: function (id) { return new Promise(function (r) { mem.messages = mem.messages.filter(function (x) { return x.id !== id; }); persist(); r(); }); },
       login: function (email, pass) {
-        if (email.trim().toLowerCase() === DEMO_EMAIL && pass === DEMO_PASS) { session(true); demoUser = { email: DEMO_EMAIL }; authCb(demoUser); return Promise.resolve(); }
+        if (DEMO_EMAIL && DEMO_PASS && email.trim().toLowerCase() === DEMO_EMAIL && pass === DEMO_PASS) { session(true); demoUser = { email: DEMO_EMAIL }; authCb(demoUser); return Promise.resolve(); }
         var e = new Error('bad'); e.code = 'auth/invalid-credential'; return Promise.reject(e);
       },
       logout: function () { session(false); demoUser = null; authCb(null); return Promise.resolve(); },
       resetPassword: function () { var e = new Error('demo'); e.code = 'demo'; return Promise.reject(e); },
       updatePassword: function () { return Promise.resolve(); },
       uploadImage: function (src) { return Promise.resolve(src); },
-      onAuth: function (cb) { authCb = function (u) { cb(u, !!u); }; if (session()) { demoUser = { email: DEMO_EMAIL }; } authCb(demoUser); }
+      uploadFile: function (f) { return Promise.resolve(URL.createObjectURL(f)); },
+      onAuth: function (cb) { authCb = function (u) { cb(u, !!u); }; if (session() && DEMO_PASS) { demoUser = { email: DEMO_EMAIL }; } authCb(demoUser); },
+      mfaState: function () { return Promise.resolve({ current: 'aal1', next: 'aal1', factors: [] }); },
+      mfaEnroll: function () { var e = new Error('Disponible une fois le site relié à Supabase.'); e.code = 'demo'; return Promise.reject(e); },
+      mfaVerify: function () { return Promise.reject(new Error('demo')); },
+      mfaUnenroll: function () { return Promise.reject(new Error('demo')); },
+      recheck: function () { return Promise.resolve(); }
     };
   })();
 
   /* --- Mode en ligne : Supabase (base de données + connexion + photos) --- */
   var SupabaseStore = (function () {
     var sb, seeded = false, seedP = null, BUCKET = 'site-images';
-    var CDN = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2/dist/umd/supabase.js';
+    var CDN = 'vendor/supabase-js-2.108.2.js';   // hébergé avec le site (aucun script d'un site tiers)
     function chk(r) { if (r && r.error) { var e = new Error(r.error.message || 'supabase'); e.code = r.error.code || ''; e.status = r.error.status; throw e; } return r; }
     function row(coll, it) { var d = Object.assign({}, it); var id = d.id, ord = d.order || 0; delete d.id; delete d.order; return { id: id, coll: coll, ord: ord, data: d, updated_at: new Date().toISOString() }; }
     function newId(coll) { return coll + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
     return {
       demo: false,
       init: function () {
-        return loadScript(CDN).then(function () { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); });
+        return loadScript(CDN, 'sha384-nD3dwv4+ZqdYnmZKe/249ImlV04om7xTCcsoSeQYI+RO+XlKPoqAWaJR1M5SJH9p').then(function () { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }); });
       },
       load: function () {
         return Promise.all([
@@ -1229,6 +1559,13 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
         return sb.storage.from(BUCKET).upload(path, new Blob([arr], { type: 'image/jpeg' }), { contentType: 'image/jpeg', cacheControl: '31536000' }).then(chk)
           .then(function () { return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl; });
       },
+      /* Envoie une vidéo (ou autre fichier) dans Supabase Storage */
+      uploadFile: function (file) {
+        var ext = ((file.name || '').split('.').pop() || 'mp4').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 5) || 'mp4';
+        var path = 'videos/' + new Date().toISOString().slice(0, 10) + '/' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8) + '.' + ext;
+        return sb.storage.from(BUCKET).upload(path, file, { contentType: file.type || 'video/mp4', cacheControl: '31536000' }).then(chk)
+          .then(function () { return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl; });
+      },
       saveItem: function (coll, item) {
         return this.seedIfNeeded().then(function () {
           var it = Object.assign({}, item); if (!it.id) it.id = newId(coll);
@@ -1255,19 +1592,49 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
       resetPassword: function (e) {
         return sb.auth.resetPasswordForEmail(e.trim(), { redirectTo: location.origin + location.pathname }).then(function (r) { if (r.error) { var er = new Error(r.error.message); er.code = r.error.status === 429 ? 'auth/too-many-requests' : 'auth/reset'; throw er; } });
       },
-      updatePassword: function (pw) { return sb.auth.updateUser({ password: pw }).then(function (r) { if (r.error) throw new Error(r.error.message); }); },
+      updatePassword: function (pw) { return sb.auth.updateUser({ password: pw }).then(function (r) { if (r.error) { var e = new Error(r.error.message); e.code = r.error.code || ''; throw e; } }); },
+      /* Double authentification (code à 6 chiffres d'une application comme Google Authenticator) */
+      mfaState: function () {
+        return Promise.all([sb.auth.mfa.getAuthenticatorAssuranceLevel(), sb.auth.mfa.listFactors()]).then(function (r) {
+          var a = (r[0] && r[0].data) || {}, f = (r[1] && r[1].data) || {};
+          return { current: a.currentLevel || 'aal1', next: a.nextLevel || 'aal1', factors: (f.totp || []).filter(function (x) { return x.status === 'verified'; }) };
+        });
+      },
+      mfaEnroll: function () {
+        // Retire d'abord un essai d'activation non terminé
+        return sb.auth.mfa.listFactors().then(function (r) {
+          var pending = (((r && r.data) || {}).all || []).filter(function (x) { return x.factor_type === 'totp' && x.status !== 'verified'; });
+          return Promise.all(pending.map(function (x) { return sb.auth.mfa.unenroll({ factorId: x.id }); }));
+        }).then(function () {
+          return sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Mloza ' + new Date().toISOString().slice(0, 16) });
+        }).then(function (r) { if (r.error) throw r.error; return { id: r.data.id, qr: r.data.totp.qr_code, secret: r.data.totp.secret }; });
+      },
+      mfaVerify: function (factorId, code) {
+        return sb.auth.mfa.challengeAndVerify({ factorId: factorId, code: code }).then(function (r) { if (r.error) throw r.error; });
+      },
+      mfaUnenroll: function (factorId) { return sb.auth.mfa.unenroll({ factorId: factorId }).then(function (r) { if (r.error) throw r.error; }); },
+      /* Vérifie à nouveau les droits (après la saisie du code de double authentification) */
+      recheck: function () { return this._check ? this._check() : Promise.resolve(); },
       /* Prévient la page à chaque connexion / déconnexion, avec le droit administrateur vérifié par la base */
       onAuth: function (cb, onRecovery) {
-        var last = null;
+        var last = null, self = this;
+        if (!sb) { self._check = function () { return Promise.resolve(cb(null, false)); }; cb(null, false); return; }   // bibliothèque non chargée (bloquée ou hors connexion)
+        function check(user) {
+          if (!user) return Promise.resolve(cb(null, false));
+          // Compte protégé par double authentification : il faut le code avant d'avoir les droits
+          return sb.auth.mfa.getAuthenticatorAssuranceLevel().then(function (a) {
+            var d = (a && a.data) || {};
+            if (d.nextLevel === 'aal2' && d.currentLevel !== 'aal2') return cb(user, 'mfa');
+            return sb.rpc('is_admin').then(function (r) { cb(user, !r.error && r.data === true); });
+          }).catch(function () { cb(user, false); });
+        }
+        self._check = function () { return sb.auth.getSession().then(function (r) { return check(r.data && r.data.session ? r.data.session.user : null); }); };
         sb.auth.onAuthStateChange(function (event, session) {
           var user = session ? session.user : null;
           if (event === 'PASSWORD_RECOVERY' && onRecovery) setTimeout(onRecovery, 0);
           var key = user ? user.id : '';
-          if (key === last && event !== 'SIGNED_IN') return; last = key;
-          setTimeout(function () {
-            if (!user) return cb(null, false);
-            sb.rpc('is_admin').then(function (r) { cb(user, !r.error && r.data === true); }, function () { cb(user, false); });
-          }, 0);
+          if (key === last && event !== 'SIGNED_IN' && event !== 'MFA_CHALLENGE_VERIFIED') return; last = key;
+          setTimeout(function () { check(user); }, 0);
         });
       }
     };
@@ -1286,6 +1653,8 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
     if (c === 'storage/quota') return "Espace de stockage plein sur cet appareil : utilisez des photos plus légères.";
     var m = ((e && e.message) || '').toLowerCase();
     if (c === '42501' || /row-level security|permission|unauthorized|not allowed/.test(m)) return "Action refusée : ce compte n'a pas les droits d'administrateur.";
+    if (/payload too large|maximum allowed size|exceeded the maximum|413/.test(m)) return 'Fichier trop lourd pour Supabase (50 Mo maximum). Pour une vidéo, publiez-la sur YouTube et collez le lien.';
+    if (/mime type|not supported/.test(m)) return "Ce type de fichier n'est pas accepté.";
     if (/failed to fetch|network/.test(m)) return 'Connexion impossible. Vérifiez votre connexion internet.';
     if (c === 'permission-denied') return "Action refusée : ce compte n'a pas les droits d'administrateur.";
     if (c === 'unavailable' || c === 'auth/network-request-failed') return 'Connexion impossible. Vérifiez votre connexion internet.';
@@ -1315,46 +1684,304 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
       rd.readAsDataURL(file);
     });
   }
-  function pickImage() {
-    return new Promise(function (res) {
-      var inp = $('#img-input'); inp.value = ''; inp.multiple = false;
-      inp.onchange = function () {
-        var f = inp.files && inp.files[0]; if (!f) return res(null);
-        compressImage(f, useOnline ? 1600 : 1000, useOnline ? 0.82 : 0.72).then(function (data) {
-          if (useOnline) toast('Envoi de la photo…');
-          return Store.uploadImage(data).then(res, function (er) { toast(errMsg(er), true); res(null); });
-        }, function () { toast("Ce fichier n'est pas une image lisible.", true); res(null); });
-      };
-      inp.click();
-    });
-  }
   function phImg(src, label) {
     src = safeSrc(src);
     return src ? '<img class="slot-img" src="' + esc(src) + '" alt="' + esc(label || '') + '" loading="lazy">' : '<span>' + esc(label || 'photo') + '</span>';
   }
   var plain = (function () { var d = document.createElement('div'); try { d.contentEditable = 'plaintext-only'; return d.contentEditable === 'plaintext-only'; } catch (e) { return false; } })();
-  /* Choisir plusieurs photos d'un coup (galerie) */
-  function pickImages(max) {
+  /* ======================================================================
+     PHOTOS : RECADRAGE (ENCADREMENT) AVANT ENREGISTREMENT
+     ====================================================================== */
+  var RATIOS = [['libre', 'Original', 0], ['1:1', 'Carré', 1], ['4:3', '4:3', 4 / 3], ['3:4', 'Portrait 3:4', 3 / 4], ['16:9', 'Large 16:9', 16 / 9]];
+  /* Cadre conseillé selon l'endroit où la photo sera affichée */
+  var SECTION_RATIO = { hero: '3:4', about_main: '3:4', about_side: '4:3', why: '4:3', devis: '3:4' };
+  function ratioFor(coll, field) {
+    if (coll === 'products') return '4:3';
+    if (coll === 'projects' || coll === 'posts' || coll === 'services') return '16:9';
+    if (coll === 'team' || coll === 'testimonials') return '1:1';
+    if (field === 'poster') return '16:9';
+    return 'libre';
+  }
+  function loadImgFromFile(file) {
+    return new Promise(function (res, rej) {
+      if (!file || !/^image\//.test(file.type)) return rej(new Error('type'));
+      var rd = new FileReader(); rd.onerror = rej;
+      rd.onload = function () { var im = new Image(); im.onload = function () { res(im); }; im.onerror = function () { rej(new Error('type')); }; im.src = rd.result; };
+      rd.readAsDataURL(file);
+    });
+  }
+  function loadImgFromUrl(src) {
+    return new Promise(function (res, rej) {
+      var im = new Image(); if (!/^data:/.test(src)) im.crossOrigin = 'anonymous';
+      im.onload = function () { res(im); }; im.onerror = function () { rej(new Error('load')); }; im.src = src;
+    });
+  }
+
+  var Crop = (function () {
+    var modal, cv, ctx, st = null, resolveFn = null;
+    function ratioVal(key) { var r = RATIOS.filter(function (x) { return x[0] === key; })[0]; return r && r[2] ? r[2] : (st ? st.iw() / st.ih() : 1); }
+    function layout() {
+      var box = $('#crop-stage'), maxW = Math.min(box.clientWidth || 600, 720), maxH = Math.min(window.innerHeight * 0.52, 520);
+      var r = ratioVal(st.ratio), w = maxW, h = w / r;
+      if (h > maxH) { h = maxH; w = h * r; }
+      st.W = Math.round(w); st.H = Math.round(h);
+      var dpr = window.devicePixelRatio || 1;
+      cv.width = st.W * dpr; cv.height = st.H * dpr; cv.style.width = st.W + 'px'; cv.style.height = st.H + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function scales() { var iw = st.iw(), ih = st.ih(); return { contain: Math.min(st.W / iw, st.H / ih), cover: Math.max(st.W / iw, st.H / ih) }; }
+    function setZoomFromSlider() { var s = scales(), z = +$('#crop-zoom').value / 100; st.scale = s.contain * Math.pow(s.cover * 4 / s.contain, z); clamp(); draw(); }
+    function syncSlider() { var s = scales(); var z = Math.log(st.scale / s.contain) / Math.log(s.cover * 4 / s.contain); $('#crop-zoom').value = Math.round(Math.max(0, Math.min(1, z || 0)) * 100); }
+    function clamp() {
+      var w = st.iw() * st.scale, h = st.ih() * st.scale, mx = Math.abs(w - st.W) / 2, my = Math.abs(h - st.H) / 2;
+      st.ox = Math.max(-mx, Math.min(mx, st.ox)); st.oy = Math.max(-my, Math.min(my, st.oy));
+    }
+    function paint(c, W, H, k) {
+      c.save(); c.fillStyle = st.bg; c.fillRect(0, 0, W, H);
+      c.translate(W / 2 + st.ox * k, H / 2 + st.oy * k); c.rotate(st.rot * Math.PI / 180); c.scale(st.scale * k, st.scale * k);
+      c.drawImage(st.img, -st.img.naturalWidth / 2, -st.img.naturalHeight / 2); c.restore();
+    }
+    function draw() {
+      paint(ctx, st.W, st.H, 1);
+      ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1; ctx.beginPath();
+      [1, 2].forEach(function (i) { ctx.moveTo(st.W * i / 3, 0); ctx.lineTo(st.W * i / 3, st.H); ctx.moveTo(0, st.H * i / 3); ctx.lineTo(st.W, st.H * i / 3); });
+      ctx.stroke(); ctx.strokeStyle = 'rgba(166,95,31,.95)'; ctx.lineWidth = 2; ctx.strokeRect(1, 1, st.W - 2, st.H - 2); ctx.restore();
+    }
+    function setRatio(key) { st.ratio = key; layout(); st.scale = scales().cover; st.ox = st.oy = 0; syncSlider(); draw(); renderBtns(); }
+    function renderBtns() {
+      $('#crop-ratios').innerHTML = RATIOS.map(function (r) { return '<button type="button" data-ratio="' + r[0] + '" aria-pressed="' + (r[0] === st.ratio) + '">' + r[1] + '</button>'; }).join('');
+      $$('#crop-bgs button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.bg === st.bg)); });
+    }
+    function exportImg() {
+      var maxSide = useOnline ? 1600 : 1000, r = st.W / st.H, ow, oh;
+      if (r >= 1) { ow = maxSide; oh = Math.round(maxSide / r); } else { oh = maxSide; ow = Math.round(maxSide * r); }
+      var out, q = useOnline ? 0.85 : 0.75, tries = 0;
+      do {
+        var c = document.createElement('canvas'); c.width = ow; c.height = oh;
+        paint(c.getContext('2d'), ow, oh, ow / st.W);
+        out = st.png ? c.toDataURL('image/png') : c.toDataURL('image/jpeg', q);
+        if (st.png && out.length > 900000) st.png = false;
+        ow = Math.round(ow * 0.85); oh = Math.round(oh * 0.85); q = Math.max(0.55, q - 0.07); tries++;
+      } while (out.length > 900000 && tries < 8);
+      return out;
+    }
+    function close(val) { modal.hidden = true; document.body.style.overflow = $$('.modal').some(function (x) { return !x.hidden; }) ? 'hidden' : ''; var f = resolveFn; resolveFn = null; st = null; if (f) f(val); }
+    function init() {
+      modal = $('#crop-modal'); cv = $('#crop-canvas'); ctx = cv.getContext('2d');
+      var drag = null, pts = {}, pinch = null;
+      cv.addEventListener('pointerdown', function (e) { cv.setPointerCapture(e.pointerId); pts[e.pointerId] = [e.clientX, e.clientY]; var ids = Object.keys(pts); if (ids.length === 2) { var a = pts[ids[0]], b = pts[ids[1]]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), s: st.scale }; drag = null; } else drag = { x: e.clientX, y: e.clientY, ox: st.ox, oy: st.oy }; });
+      cv.addEventListener('pointermove', function (e) {
+        if (!st || !pts[e.pointerId]) return; pts[e.pointerId] = [e.clientX, e.clientY];
+        var ids = Object.keys(pts);
+        if (pinch && ids.length === 2) { var a = pts[ids[0]], b = pts[ids[1]], s = scales(); st.scale = Math.max(s.contain, Math.min(s.cover * 4, pinch.s * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d)); clamp(); syncSlider(); draw(); return; }
+        if (drag) { st.ox = drag.ox + e.clientX - drag.x; st.oy = drag.oy + e.clientY - drag.y; clamp(); draw(); }
+      });
+      var up = function (e) { delete pts[e.pointerId]; if (Object.keys(pts).length < 2) pinch = null; if (!Object.keys(pts).length) drag = null; };
+      cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+      cv.addEventListener('wheel', function (e) { if (!st) return; e.preventDefault(); var s = scales(); st.scale = Math.max(s.contain, Math.min(s.cover * 4, st.scale * (e.deltaY < 0 ? 1.08 : 0.926))); clamp(); syncSlider(); draw(); }, { passive: false });
+      $('#crop-zoom').addEventListener('input', setZoomFromSlider);
+      $('#crop-ratios').addEventListener('click', function (e) { var b = e.target.closest('[data-ratio]'); if (b) setRatio(b.dataset.ratio); });
+      $('#crop-bgs').addEventListener('click', function (e) { var b = e.target.closest('[data-bg]'); if (!b) return; st.bg = b.dataset.bg; renderBtns(); draw(); });
+      $('#crop-rot').addEventListener('click', function () { st.rot = (st.rot + 90) % 360; if (st.ratio === 'libre') layout(); st.scale = scales().cover; st.ox = st.oy = 0; syncSlider(); draw(); });
+      $('#crop-fit').addEventListener('click', function () { st.scale = scales().contain; st.ox = st.oy = 0; syncSlider(); draw(); });
+      $('#crop-fill').addEventListener('click', function () { st.scale = scales().cover; st.ox = st.oy = 0; syncSlider(); draw(); });
+      $('#crop-ok').addEventListener('click', function () { close(exportImg()); });
+      $('#crop-keep').addEventListener('click', function () { st.ratio = 'libre'; st.rot = 0; layout(); st.scale = scales().cover; st.ox = st.oy = 0; close(exportImg()); });
+      $$('[data-crop-cancel]').forEach(function (b) { b.addEventListener('click', function () { close(null); }); });
+      modal.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); close(null); } });
+      window.addEventListener('resize', function () { if (st && !modal.hidden) { var keep = st.scale / scales().cover; layout(); st.scale = scales().cover * keep; clamp(); draw(); } });
+    }
+    return {
+      /* Ouvre l'outil d'encadrement ; renvoie l'image recadrée (data URL) ou null */
+      open: function (img, opts) {
+        if (!modal) init();
+        opts = opts || {};
+        return new Promise(function (res) {
+          resolveFn = res;
+          st = { img: img, rot: 0, ox: 0, oy: 0, scale: 1, bg: opts.png ? 'transparent' : '#ffffff', png: !!opts.png, ratio: opts.ratio || 'libre',
+            iw: function () { return st.rot % 180 ? st.img.naturalHeight : st.img.naturalWidth; }, ih: function () { return st.rot % 180 ? st.img.naturalWidth : st.img.naturalHeight; } };
+          $('#crop-title').textContent = opts.title || 'Encadrer la photo';
+          $('#crop-count').textContent = opts.count || '';
+          $('#crop-keep').classList.toggle('hidden', !opts.allowKeep);
+          $('#crop-bgs').classList.toggle('png', !!opts.png);
+          modal.hidden = false; document.body.style.overflow = 'hidden';
+          requestAnimationFrame(function () { setRatio(st.ratio); $('#crop-ok').focus(); });
+        });
+      }
+    };
+  })();
+
+  /* Choisir une photo → l'encadrer → l'enregistrer. Renvoie l'adresse de la photo enregistrée */
+  function chooseFiles(multiple, accept) {
     return new Promise(function (res) {
-      var inp = $('#img-input'); inp.value = ''; inp.multiple = true;
-      inp.onchange = function () {
-        var files = Array.prototype.slice.call(inp.files || [], 0, max); inp.multiple = false;
-        if (!files.length) return res([]);
-        toast('Envoi de ' + files.length + ' photo' + (files.length > 1 ? 's' : '') + '…');
-        var out = [];
-        files.reduce(function (p, f) {
-          return p.then(function () {
-            return compressImage(f, useOnline ? 1600 : 1000, useOnline ? 0.82 : 0.72).then(function (d) { return Store.uploadImage(d); }).then(function (u) { out.push(u); }, function (er) { toast(er && er.message === 'type' ? "Un fichier n'est pas une image lisible." : errMsg(er), true); });
-          });
-        }, Promise.resolve()).then(function () { res(out); });
-      };
+      var inp = $('#img-input'); inp.value = ''; inp.multiple = !!multiple; inp.accept = accept || 'image/*';
+      inp.onchange = function () { var f = Array.prototype.slice.call(inp.files || []); inp.multiple = false; inp.accept = 'image/*'; res(f); };
       inp.click();
     });
   }
+  function cropAndUpload(img, opts) {
+    return Crop.open(img, opts).then(function (data) {
+      if (!data) return null;
+      if (useOnline) toast('Envoi de la photo…');
+      return Store.uploadImage(data).catch(function (er) { toast(errMsg(er), true); return null; });
+    });
+  }
+  function pickImage(opts) {
+    return chooseFiles(false).then(function (files) {
+      if (!files.length) return null;
+      return loadImgFromFile(files[0]).then(function (img) { return cropAndUpload(img, opts); }, function () { toast("Ce fichier n'est pas une image lisible.", true); return null; });
+    });
+  }
+  function pickImages(max, opts) {
+    return chooseFiles(true).then(function (files) {
+      files = files.slice(0, max); var out = [];
+      return files.reduce(function (p, f, i) {
+        return p.then(function () {
+          return loadImgFromFile(f).then(function (img) {
+            return cropAndUpload(img, Object.assign({}, opts, { allowKeep: true, count: files.length > 1 ? 'Photo ' + (i + 1) + ' sur ' + files.length : '' })).then(function (u) { if (u) out.push(u); });
+          }, function () { toast("Un fichier n'est pas une image lisible.", true); });
+        });
+      }, Promise.resolve()).then(function () { return out; });
+    });
+  }
+  /* Recadrer une photo déjà enregistrée */
+  function recrop(src, opts) {
+    return loadImgFromUrl(src).then(function (img) { return cropAndUpload(img, opts); }, function () { toast("Impossible d'ouvrir cette photo pour la recadrer. Choisissez-la à nouveau depuis votre appareil.", true); return null; });
+  }
+
+  /* ======================================================================
+     VIDÉOS
+     ====================================================================== */
+  var MAX_VIDEO_MB = 50;
+  function safeMedia(u) { return typeof u === 'string' && /^(https:\/\/|blob:|data:video\/)/i.test(u) ? u : ''; }
+  function parseVideo(u) {
+    u = safeMedia(u); if (!u) return null;
+    var m = /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/.exec(u);
+    if (m) return { kind: 'embed', src: 'https://www.youtube-nocookie.com/embed/' + m[1] + '?autoplay=1&rel=0', thumb: 'https://i.ytimg.com/vi/' + m[1] + '/hqdefault.jpg', link: u };
+    m = /vimeo\.com\/(?:video\/)?(\d+)/.exec(u);
+    if (m) return { kind: 'embed', src: 'https://player.vimeo.com/video/' + m[1] + '?autoplay=1', link: u };
+    if (/^(blob:|data:video\/)/.test(u) || /\.(mp4|webm|mov|m4v|ogg)(\?|$)/i.test(u) || /\/storage\/v1\/object\/public\//.test(u)) return { kind: 'file', src: u, link: u };
+    return { kind: 'link', src: u, link: u };   // Facebook, TikTok… : ouverture dans un nouvel onglet
+  }
+  function pickVideo() {
+    return chooseFiles(false, 'video/*').then(function (files) {
+      var f = files[0]; if (!f) return null;
+      if (!/^video\//.test(f.type)) { toast("Ce fichier n'est pas une vidéo.", true); return null; }
+      if (f.size > MAX_VIDEO_MB * 1024 * 1024) { toast('Vidéo trop lourde (' + Math.round(f.size / 1048576) + ' Mo, maximum ' + MAX_VIDEO_MB + ' Mo). Publiez-la sur YouTube et collez le lien.', true); return null; }
+      toast('Envoi de la vidéo… (cela peut prendre une minute)');
+      return Store.uploadFile(f).then(function (u) { if (Store.demo) toast('Mode démo : la vidéo reste visible jusqu’au rechargement de la page.'); else toast('Vidéo enregistrée'); return u; }, function (er) { toast(errMsg(er), true); return null; });
+    });
+  }
+
+  /* ======================================================================
+     VISIONNEUSE : image entière, zoom, déplacement, photo précédente / suivante
+     ====================================================================== */
+  function createViewer(root, opts) {
+    opts = opts || {};
+    root.classList.add('vw');
+    root.innerHTML = '<div class="vw-stage"><div class="vw-media"></div>' +
+      '<button type="button" class="vw-nav vw-prev" aria-label="Photo précédente">‹</button><button type="button" class="vw-nav vw-next" aria-label="Photo suivante">›</button>' +
+      '<div class="vw-bar"><button type="button" data-z="out" aria-label="Dézoomer">−</button><span class="vw-pct">100 %</span><button type="button" data-z="in" aria-label="Zoomer">+</button><button type="button" data-z="fit" aria-label="Voir l\'image entière" title="Image entière">⤢</button>' +
+      (opts.fullscreen ? '<button type="button" data-z="full" aria-label="Plein écran" title="Plein écran">⛶</button>' : '') + '<span class="vw-count"></span></div>' +
+      '<span class="vw-hint">Molette ou pincer pour zoomer · glisser pour déplacer</span></div><div class="vw-thumbs"></div>';
+    var media = $('.vw-media', root), stage = $('.vw-stage', root), items = [], idx = 0, s = 1, x = 0, y = 0, el = null, pts = {}, pinch = null, drag = null, moved = false;
+    function apply() { if (el && el.tagName === 'IMG') el.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')'; $('.vw-pct', root).textContent = Math.round(s * 100) + ' %'; stage.classList.toggle('zoomed', s > 1.01); }
+    function clampPan() {
+      if (!el || el.tagName !== 'IMG') return;
+      var r = stage.getBoundingClientRect(), iw = el.naturalWidth || 1, ih = el.naturalHeight || 1, fit = Math.min(r.width / iw, r.height / ih);
+      var w = iw * fit * s, h = ih * fit * s, mx = Math.max(0, (w - r.width) / 2), my = Math.max(0, (h - r.height) / 2);
+      x = Math.max(-mx, Math.min(mx, x)); y = Math.max(-my, Math.min(my, y));
+    }
+    function zoomTo(ns, cx, cy) {
+      ns = Math.max(1, Math.min(6, ns));
+      if (cx != null) { var r = stage.getBoundingClientRect(), px = cx - r.left - r.width / 2, py = cy - r.top - r.height / 2; x = px - (px - x) * ns / s; y = py - (py - y) * ns / s; }
+      s = ns; if (s === 1) { x = y = 0; } clampPan(); apply();
+    }
+    function show(i) {
+      if (!items.length) { media.innerHTML = '<span class="vw-empty">Aucune photo</span>'; el = null; root.classList.add('single'); return; }
+      idx = (i + items.length) % items.length; s = 1; x = y = 0;
+      var it = items[idx];
+      if (it.kind === 'embed') media.innerHTML = '<iframe src="' + esc(it.src) + '" title="' + esc(it.title || 'Vidéo') + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+      else if (it.kind === 'file') media.innerHTML = '<video src="' + esc(it.src) + '" controls playsinline autoplay' + (it.poster ? ' poster="' + esc(it.poster) + '"' : '') + '></video>';
+      else if (it.kind === 'link') media.innerHTML = '<a class="vw-link" href="' + esc(it.src) + '" target="_blank" rel="noopener">▶ Voir la vidéo (s\'ouvre dans un nouvel onglet)</a>';
+      else media.innerHTML = '<img src="' + esc(it.src) + '" alt="' + esc(it.title || '') + '" draggable="false">';
+      el = media.firstElementChild;
+      root.classList.toggle('is-video', it.kind !== 'image');
+      root.classList.toggle('single', items.length < 2);
+      $('.vw-count', root).textContent = items.length > 1 ? (idx + 1) + ' / ' + items.length : '';
+      $('.vw-thumbs', root).innerHTML = items.length > 1 ? items.map(function (t, k) { return '<button type="button" class="thumb-b' + (k === idx ? ' on' : '') + '" data-k="' + k + '" aria-label="Média ' + (k + 1) + '">' + (t.thumb ? '<img src="' + esc(t.thumb) + '" alt="">' : '<span class="tv">▶</span>') + (t.kind !== 'image' ? '<i class="tplay">▶</i>' : '') + '</button>'; }).join('') : '';
+      apply();
+      if (opts.onChange) opts.onChange(idx, it);
+    }
+    function stopMedia() { $$('video', media).forEach(function (v) { try { v.pause(); } catch (e) { } }); var f = $('iframe', media); if (f) f.src = 'about:blank'; }
+    root.querySelector('.vw-prev').addEventListener('click', function (e) { e.stopPropagation(); stopMedia(); show(idx - 1); });
+    root.querySelector('.vw-next').addEventListener('click', function (e) { e.stopPropagation(); stopMedia(); show(idx + 1); });
+    $('.vw-thumbs', root).addEventListener('click', function (e) { var b = e.target.closest('[data-k]'); if (b) { stopMedia(); show(+b.dataset.k); } });
+    $('.vw-bar', root).addEventListener('click', function (e) {
+      var b = e.target.closest('[data-z]'); if (!b) return; e.stopPropagation();
+      if (b.dataset.z === 'in') zoomTo(s * 1.5); else if (b.dataset.z === 'out') zoomTo(s / 1.5); else if (b.dataset.z === 'fit') zoomTo(1);
+      else if (b.dataset.z === 'full' && opts.onFullscreen) opts.onFullscreen(items, idx);
+    });
+    stage.addEventListener('wheel', function (e) { if (!el || el.tagName !== 'IMG') return; e.preventDefault(); zoomTo(s * (e.deltaY < 0 ? 1.15 : 0.87), e.clientX, e.clientY); }, { passive: false });
+    stage.addEventListener('dblclick', function (e) { if (el && el.tagName === 'IMG') zoomTo(s > 1 ? 1 : 2.5, e.clientX, e.clientY); });
+    stage.addEventListener('pointerdown', function (e) {
+      if (!el || el.tagName !== 'IMG' || e.target.closest('button')) return;
+      stage.setPointerCapture(e.pointerId); pts[e.pointerId] = [e.clientX, e.clientY]; moved = false;
+      var ids = Object.keys(pts);
+      if (ids.length === 2) { var a = pts[ids[0]], b = pts[ids[1]]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), s: s, cx: (a[0] + b[0]) / 2, cy: (a[1] + b[1]) / 2 }; drag = null; }
+      else drag = { sx: e.clientX, sy: e.clientY, x: x, y: y };
+    });
+    stage.addEventListener('pointermove', function (e) {
+      if (!pts[e.pointerId]) return; pts[e.pointerId] = [e.clientX, e.clientY];
+      var ids = Object.keys(pts);
+      if (pinch && ids.length === 2) { var a = pts[ids[0]], b = pts[ids[1]]; zoomTo(pinch.s * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d, pinch.cx, pinch.cy); moved = true; return; }
+      if (drag) { var dx = e.clientX - drag.sx, dy = e.clientY - drag.sy; if (Math.abs(dx) + Math.abs(dy) > 4) moved = true; if (s > 1) { x = drag.x + dx; y = drag.y + dy; clampPan(); apply(); } }
+    });
+    function end(e) {
+      if (drag && s === 1 && items.length > 1) { var dx = e.clientX - drag.sx; if (Math.abs(dx) > 50) show(idx + (dx < 0 ? 1 : -1)); }
+      else if (drag && !moved && s === 1 && opts.onTap) opts.onTap(items, idx);
+      delete pts[e.pointerId]; if (Object.keys(pts).length < 2) pinch = null; if (!Object.keys(pts).length) drag = null;
+    }
+    stage.addEventListener('pointerup', end); stage.addEventListener('pointercancel', function (e) { delete pts[e.pointerId]; pinch = null; drag = null; });
+    return {
+      open: function (list, i) { items = list || []; show(i || 0); },
+      key: function (e) { if (e.key === 'ArrowLeft') { stopMedia(); show(idx - 1); } else if (e.key === 'ArrowRight') { stopMedia(); show(idx + 1); } else if (e.key === '+' || e.key === '=') zoomTo(s * 1.5); else if (e.key === '-') zoomTo(s / 1.5); else return false; return true; },
+      stop: stopMedia,
+      index: function () { return idx; }
+    };
+  }
+  /* Liste des médias d'un élément pour la visionneuse */
+  function mediaOf(it, title) {
+    var list = imgsOf(it).map(function (s) { return { kind: 'image', src: s, thumb: s, title: title }; });
+    var v = parseVideo(it && it.video);
+    if (v) list.push(Object.assign({ title: title, poster: safeSrc(it.poster) || '', thumb: v.thumb || safeSrc(it.poster) || list[0] && list[0].src || '' }, v));
+    return list;
+  }
+
+  /* Visionneuse plein écran */
+  var LB = null;
+  function lightbox(items, i) {
+    var m = $('#lightbox');
+    if (!LB) {
+      LB = createViewer($('#lb-viewer'), {});
+      m.addEventListener('click', function (e) { if (e.target === m || e.target.closest('[data-lb-close]')) closeLightbox(); });
+    }
+    m.hidden = false; document.body.style.overflow = 'hidden'; LB.open(items, i);
+    setTimeout(function () { $('[data-lb-close]', m).focus(); }, 30);
+  }
+  function closeLightbox() { var m = $('#lightbox'); if (!m || m.hidden) return; if (LB) LB.stop(); m.hidden = true; if (!$$('.modal').some(function (x) { return !x.hidden; })) document.body.style.overflow = ''; }
+  document.addEventListener('keydown', function (e) {
+    var m = $('#lightbox');
+    if (m && !m.hidden) { if (e.key === 'Escape') { e.stopImmediatePropagation(); closeLightbox(); } else if (LB && LB.key(e)) e.preventDefault(); return; }
+    var pmo = $('#prod-modal');
+    if (pmo && !pmo.hidden && PV && !/INPUT|TEXTAREA/.test((document.activeElement || {}).tagName || '') && PV.key(e)) e.preventDefault();
+  }, true);
+  var PV = null;   // visionneuse de la fiche produit (créée plus bas)
+
   function tools(coll, id) {
     if (!editing) return '';
     var b = function (act, ic, title, cls) { return '<button type="button" class="' + (cls || '') + '" data-act="' + act + '" data-coll="' + coll + '" data-id="' + esc(id) + '" title="' + title + '" aria-label="' + title + '">' + ic + '</button>'; };
-    return '<div class="tools">' + b('up', '◀', 'Déplacer avant') + b('down', '▶', 'Déplacer après') + (hasImg(coll) ? b('photo', '📷', 'Changer la photo') : '') + b('edit', '✎', 'Modifier (tous les champs et photos)') + b('del', '🗑', 'Supprimer', 'del') + '</div>';
+    return '<div class="tools">' + b('up', '◀', 'Déplacer avant') + b('down', '▶', 'Déplacer après') + (hasImg(coll) ? b('photo', '📷', 'Changer la photo') : '') + (coll === 'partners' ? b('edit', '🔗', 'Lien du site du partenaire') : '') + b('edit', '✎', 'Modifier (tous les champs et photos)') + b('del', '🗑', 'Supprimer', 'del') + '</div>';
   }
   function addBtn(coll, label, cls) { return editing ? '<button type="button" class="add-btn ' + (cls || '') + '" data-act="add" data-coll="' + coll + '">＋ ' + esc(label) + '</button>' : ''; }
   function findItem(coll, id) { return (S.lists[coll] || []).find(function (x) { return x.id === id; }); }
@@ -1382,6 +2009,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
       if (editing) {
         if (!t) { t = document.createElement('div'); t.className = 'img-tools'; el.appendChild(t); }
         t.innerHTML = '<button type="button" data-imgact="set" data-key="' + k + '">📷 ' + (src ? 'Changer la photo' : 'Ajouter une photo') + '</button>' +
+          (src ? '<button type="button" data-imgact="crop" data-key="' + k + '">✂ Recadrer</button>' : '') +
           (S.images[k] ? '<button type="button" data-imgact="clear" data-key="' + k + '">Retirer</button>' : '');
       } else if (t) t.remove();
     });
@@ -1394,7 +2022,8 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
       Store.saveImage(k, null).then(function () { delete S.images[k]; applyImages(); toast('Photo retirée'); }, function (er) { toast(errMsg(er), true); });
       return;
     }
-    pickImage().then(function (src) {
+    var cur = safeSrc(S.images[k]) || DEFAULT_IMGS[k] || '';
+    (b.dataset.imgact === 'crop' ? recrop(cur, { ratio: SECTION_RATIO[k] || 'libre', title: 'Recadrer la photo' }) : pickImage({ ratio: SECTION_RATIO[k] || 'libre' })).then(function (src) {
       if (!src) return;
       toast('Enregistrement…');
       Store.saveImage(k, src).then(function () { S.images[k] = src; applyImages(); toast('Photo enregistrée'); }, function (er) { toast(errMsg(er), true); });
@@ -1422,6 +2051,13 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
     NAV.forEach(function (n) { var s = $(n[1]); if (s) spy.observe(s); });
   }
 
+  /* Photo introuvable (lien cassé, vignette YouTube indisponible…) : on affiche un cadre propre */
+  document.addEventListener('error', function (e) {
+    var im = e.target; if (!im || im.tagName !== 'IMG') return;
+    if (im.classList.contains('slot-img')) { var host = im.parentNode; im.remove(); if (host && !host.querySelector(':scope > span:not(.play-ov):not(.badge):not(.pcount):not(.zoom-ic):not(.date)')) { var sp = document.createElement('span'); sp.textContent = host.closest('.media-item') ? 'vidéo' : 'photo'; host.insertBefore(sp, host.firstChild); } if (host) host.classList.remove('has-img'); }
+    else if (im.closest('.thumb-b')) { im.replaceWith(Object.assign(document.createElement('span'), { className: 'tv', textContent: '▶' })); }
+  }, true);
+
   /* ============ AIDES D'AFFICHAGE ============ */
   /* Rend un texte d'élément de liste modifiable sur place (mode édition) */
   function ed(coll, id, field) {
@@ -1429,7 +2065,8 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
   }
   /* Toutes les photos d'un élément : photo principale + photos supplémentaires */
   function imgsOf(it) { return [it && it.img].concat((it && it.gallery) || []).map(safeSrc).filter(Boolean); }
-  function photoCount(it) { var n = imgsOf(it).length; return n > 1 ? '<span class="pcount">📷 ' + n + '</span>' : ''; }
+  function photoCount(it) { var n = imgsOf(it).length, v = parseVideo(it && it.video); return (n > 1 || v) ? '<span class="pcount">' + (n > 1 ? '📷 ' + n : '') + (v ? (n > 1 ? ' · ' : '') + '▶ vidéo' : '') + '</span>' : ''; }
+  function coverOf(it) { return imgsOf(it)[0] || (parseVideo(it && it.video) || {}).thumb || ''; }
 
   /* ============ SERVICES ============ */
   var tab = 0;
@@ -1477,7 +2114,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
   /* ============ PROJETS ============ */
   function renderProjects() {
     $('#proj-grid').innerHTML = S.lists.projects.map(function (p, i) {
-      var im = imgsOf(p)[0];
+      var im = coverOf(p);
       return '<div class="proj editable-item' + (i === 0 ? ' on' : '') + '" data-id="' + esc(p.id) + '">' + tools('projects', p.id) + '<div class="ph">' + phImg(im, im ? p.name : 'photo : ' + p.name) + photoCount(p) + '</div><div class="proj-wrap"><span class="proj-num">' + (i < 9 ? '0' : '') + (i + 1) + '</span><div class="proj-card"><h3' + ed('projects', p.id, 'name') + '>' + esc(p.name) + '</h3><p' + ed('projects', p.id, 'desc') + '>' + esc(p.desc) + '</p><button type="button" class="more" data-detail="projects" data-id="' + esc(p.id) + '" style="border:0;cursor:pointer">Lire plus →</button></div></div></div>';
     }).join('') + addBtn('projects', 'Ajouter un projet');
   }
@@ -1515,41 +2152,37 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
       '<button type="button" data-act="add" data-coll="categories">＋ Ajouter une catégorie</button><button type="button" data-act="add" data-coll="products">＋ Ajouter un produit</button>' : '';
     var shown = list.filter(function (p) { return cat === 'Tous' || p.cat === cat; });
     $('#prod-grid').innerHTML = shown.map(function (p, k) {
-      var im = imgsOf(p)[0];
+      var im = coverOf(p);
       return '<div class="prod editable-item" style="animation-delay:' + k * 40 + 'ms">' + tools('products', p.id) + '<button type="button" class="prod-img ph" data-open="' + esc(p.id) + '" aria-label="Voir ' + esc(p.name) + '">' + phImg(im, im ? p.name : 'photo : ' + p.name) +
         '<span class="badge">' + esc(p.cat) + '</span>' + photoCount(p) + '<span class="zoom-ic">⌕</span></button><div class="prod-body"><h3' + ed('products', p.id, 'name') + '>' + esc(p.name) + '</h3><p' + ed('products', p.id, 'desc') + '>' + esc(p.desc) + '</p><div class="price"' + ed('products', p.id, 'price') + '>' + esc(p.price || 'Sur devis') + '</div>' +
         (editing ? '<div class="unit-line">Unité : <span' + ed('products', p.id, 'unit') + '>' + esc(p.unit || 'unité') + '</span></div>' : '') +
-        '<div class="prod-btns"><button type="button" data-open="' + esc(p.id) + '">Voir</button><a href="' + esc(waLink(waText(p, 1, ''), 1)) + '" target="_blank" rel="noopener">Commander</a></div></div></div>';
+        '<div class="prod-btns"><button type="button" data-open="' + esc(p.id) + '">Voir</button><button type="button" class="add-cart" data-addcart="' + esc(p.id) + '">🛒 Commander</button></div></div></div>';
     }).join('') + (!shown.length && !editing ? '<p class="empty" style="grid-column:1/-1">Aucun produit dans cette catégorie pour le moment.</p>' : '') + addBtn('products', cat !== 'Tous' ? 'Ajouter un produit dans « ' + cat + ' »' : 'Ajouter un produit');
   }
   $('#cats').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; cat = b.dataset.cat; renderProducts(); });
 
-  var sel = null, zoomOn = false, pm = $('#prod-modal'), qv = $('#q-val'), note = $('#pm-note'), zIn = $('#zoom-in');
-  function updWa() { var t = waText(sel, qv.value || 1, note.value.trim()); $('#wa-prev').textContent = t; $('#pm-wa').href = waLink(t, 1); $('#pm-wa2').href = waLink(t, 2); $('#pm-wa2-n').textContent = txt('phone2'); }
-  function setZoom(on) { zoomOn = on; zIn.style.transform = on ? 'scale(2.2)' : 'scale(1)'; $('#zoom').style.cursor = on ? 'zoom-out' : 'zoom-in'; $('#zoom-hint').textContent = on ? 'Cliquez pour dézoomer' : 'Cliquez pour zoomer'; }
-  function thumbs(list, active) {
-    return list.length > 1 ? list.map(function (s, i) { return '<button type="button" class="thumb-b' + (i === active ? ' on' : '') + '" data-thumb="' + i + '" aria-label="Photo ' + (i + 1) + '"><img src="' + esc(s) + '" alt=""></button>'; }).join('') : '';
-  }
-  function showProdImg(i) {
-    var list = imgsOf(sel);
-    zIn.innerHTML = phImg(list[i], list[i] ? sel.name : 'photo : ' + sel.name);
-    $('#pm-thumbs').innerHTML = thumbs(list, i); setZoom(false);
+  /* Fiche produit : visionneuse + ajout au panier */
+  var sel = null, pm = $('#prod-modal'), qv = $('#q-val'), note = $('#pm-note');
+  PV = createViewer($('#pm-viewer'), { fullscreen: true, onFullscreen: function (items, i) { lightbox(items, i); }, onTap: function (items, i) { lightbox(items, i); } });
+  function updWa() { if (!sel) return; var t = waText(sel, qv.value || 1, note.value.trim()); $('#pm-wa').href = waLink(t, 1); $('#pm-wa2').href = waLink(t, 2); $('#pm-wa2-n').textContent = txt('phone2'); }
+  function openProduct(id) {
+    sel = findItem('products', id); if (!sel) return;
+    $('#pm-cat').textContent = sel.cat; $('#pm-name').textContent = sel.name; $('#pm-price').textContent = sel.price || 'Sur devis';
+    $('#pm-desc').textContent = sel.desc || ''; $('#pm-unit').textContent = 'Quantité (' + (sel.unit || 'unité') + ')';
+    qv.value = 1; note.value = ''; updWa(); openModal(pm);
+    PV.open(mediaOf(sel, sel.name), 0);
   }
   $('#prod-grid').addEventListener('click', function (e) {
     if (editing && e.target.closest('[data-e]')) return;
-    var b = e.target.closest('[data-open]'); if (!b) return;
-    sel = findItem('products', b.dataset.open); if (!sel) return;
-    $('#pm-cat').textContent = sel.cat; $('#pm-name').textContent = sel.name; $('#pm-price').textContent = sel.price || 'Sur devis';
-    $('#pm-desc').textContent = sel.desc || ''; $('#pm-unit').textContent = 'Quantité (' + (sel.unit || 'unité') + ')';
-    showProdImg(0); qv.value = 1; note.value = ''; updWa(); openModal(pm);
+    var a = e.target.closest('[data-addcart]');
+    if (a) { var p = findItem('products', a.dataset.addcart); if (p) addToCart(p, 1, ''); return; }
+    var b = e.target.closest('[data-open]'); if (b) openProduct(b.dataset.open);
   });
-  $('#pm-thumbs').addEventListener('click', function (e) { var b = e.target.closest('[data-thumb]'); if (!b) return; e.stopPropagation(); showProdImg(+b.dataset.thumb); });
+  $('#pm-add').addEventListener('click', function () { if (!sel) return; addToCart(sel, +qv.value || 1, note.value.trim()); closeModal(pm); });
   $('#q-inc').addEventListener('click', function () { qv.value = (+qv.value || 0) + 1; updWa(); });
   $('#q-dec').addEventListener('click', function () { qv.value = Math.max(1, (+qv.value || 1) - 1); updWa(); });
   qv.addEventListener('input', function () { qv.value = qv.value.replace(/[^0-9]/g, ''); updWa(); });
   note.addEventListener('input', updWa);
-  $('#zoom').addEventListener('click', function () { setZoom(!zoomOn); });
-  $('#zoom').addEventListener('mousemove', function (e) { var r = this.getBoundingClientRect(); zIn.style.transformOrigin = ((e.clientX - r.left) / r.width * 100) + '% ' + ((e.clientY - r.top) / r.height * 100) + '%'; });
 
   /* ============ ÉQUIPE ============ */
   function renderTeam() {
@@ -1585,40 +2218,38 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
   function safeUrl(u) { return /^https?:\/\//i.test(u || '') ? u : (u && /^[\w.-]+\.[a-z]{2,}/i.test(u) ? 'https://' + u : ''); }
   function renderPartners() {
     $('#partners').innerHTML = S.lists.partners.map(function (p) {
-      var src = safeSrc(p.img), url = safeUrl(p.url);
-      var inner = src ? '<img src="' + esc(src) + '" alt="' + esc(p.name) + '">' : '<em' + ed('partners', p.id, 'name') + ' style="font-style:normal">' + esc(p.name) + '</em>';
-      if (editing) inner += '<button type="button" class="logo-btn" data-act="photo" data-coll="partners" data-id="' + esc(p.id) + '">📷 ' + (src ? 'Changer le logo' : 'Ajouter le logo') + '</button>';
-      if (url && !editing) inner = '<a href="' + esc(url) + '" target="_blank" rel="noopener" title="' + esc(p.name) + '">' + inner + '</a>';
-      return '<span class="editable-item' + (src ? ' p-logo' : '') + '">' + tools('partners', p.id) + inner + '</span>';
+      var src = safeSrc(p.img), url = safeUrl(p.url), host = url ? url.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0] : '';
+      var inner = src ? '<img src="' + esc(src) + '" alt="' + esc(p.name) + '" loading="lazy">' : '<em' + ed('partners', p.id, 'name') + ' style="font-style:normal">' + esc(p.name) + '</em>';
+      if (editing) {
+        inner += '<span class="p-edit"><button type="button" class="logo-btn" data-act="photo" data-coll="partners" data-id="' + esc(p.id) + '">📷 ' + (src ? 'Changer le logo' : 'Ajouter le logo') + '</button>' +
+          '<button type="button" class="logo-btn logo-btn--link" data-act="edit" data-coll="partners" data-id="' + esc(p.id) + '">🔗 ' + (url ? 'Lien : ' + esc(host) : 'Ajouter le lien du site') + '</button></span>';
+        return '<span class="p-tile editable-item' + (src ? ' p-logo' : '') + '">' + tools('partners', p.id) + inner + '</span>';
+      }
+      if (url) return '<a class="p-tile' + (src ? ' p-logo' : '') + '" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" title="Visiter le site de ' + esc(p.name) + '" aria-label="' + esc(p.name) + ' — visiter son site (nouvel onglet)">' + inner + '<span class="p-visit">Visiter le site ↗</span></a>';
+      return '<span class="p-tile' + (src ? ' p-logo' : '') + '" title="' + esc(p.name) + '">' + inner + '</span>';
     }).join('') + addBtn('partners', 'Ajouter un logo partenaire', 'add-btn--inline');
   }
 
   /* ============ ACTUALITÉS ============ */
   function renderPosts() {
     $('#posts').innerHTML = S.lists.posts.map(function (b) {
-      var im = imgsOf(b)[0];
+      var im = coverOf(b);
       return '<article class="post editable-item" data-detail="posts" data-id="' + esc(b.id) + '" tabindex="0">' + tools('posts', b.id) + '<div class="ph">' + phImg(im, im ? b.title : 'photo article') + photoCount(b) + '<span class="date"' + ed('posts', b.id, 'date') + '>' + esc(b.date) + '</span></div><div class="post-body"><small><span' + ed('posts', b.id, 'cat') + '>' + esc(b.cat) + '</span>' + (b.read ? ' · <span' + ed('posts', b.id, 'read') + '>' + esc(b.read) + '</span>' : '') + '</small><h3' + ed('posts', b.id, 'title') + '>' + esc(b.title) + '</h3><span>Lire l\'article →</span></div></article>';
     }).join('') + addBtn('posts', 'Publier un article');
   }
 
-  /* Fenêtre détail (article / projet) avec galerie */
-  var detailItem = null;
-  function showDetailImg(i) {
-    var list = imgsOf(detailItem), lbl = detailItem.title || detailItem.name;
-    $('#d-img').innerHTML = phImg(list[i], list[i] ? lbl : 'photo');
-    $('#d-img').classList.toggle('has-img', !!list[i]);
-    $('#d-thumbs').innerHTML = thumbs(list, i);
-  }
+  /* Fenêtre détail (article / projet) avec visionneuse */
+  var DV = createViewer($('#d-viewer'), { fullscreen: true, onFullscreen: function (items, i) { lightbox(items, i); }, onTap: function (items, i) { lightbox(items, i); } });
   function openDetail(coll, id) {
     var it = findItem(coll, id); if (!it) return;
-    var isPost = coll === 'posts'; detailItem = it;
-    showDetailImg(0);
+    var isPost = coll === 'posts', title = isPost ? it.title : it.name, list = mediaOf(it, title);
+    $('#d-viewer').classList.toggle('hidden', !list.length);
     $('#d-meta').innerHTML = isPost ? '<span>' + esc(it.date) + '</span><span>' + esc(it.cat) + (it.read ? ' · ' + esc(it.read) : '') + '</span>' : '<span>Projet</span>';
-    $('#d-title').textContent = isPost ? it.title : it.name;
+    $('#d-title').textContent = title;
     $('#d-text').textContent = isPost ? (it.body || "L'article complet sera bientôt disponible.") : [it.desc, it.details].filter(Boolean).join('\n\n');
     openModal($('#detail-modal'));
+    DV.open(list, 0);
   }
-  $('#d-thumbs').addEventListener('click', function (e) { var b = e.target.closest('[data-thumb]'); if (b) showDetailImg(+b.dataset.thumb); });
   document.addEventListener('click', function (e) {
     if (e.target.closest('[data-act],[data-imgact]')) return;
     var d = e.target.closest('[data-detail]'); if (!d) return;
@@ -1629,7 +2260,158 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
     if (e.key === 'Enter' && e.target.matches && e.target.matches('article[data-detail]')) openDetail(e.target.dataset.detail, e.target.dataset.id);
   });
 
-  function renderAll() { renderServices(); renderStats(); renderProjects(); renderProducts(); renderTeam(); renderTestimonials(); renderPartners(); renderPosts(); }
+  /* ============ GALERIE : PHOTOS ET VIDÉOS PUBLICITAIRES ============ */
+  function mediaItems() {
+    return S.lists.media.map(function (m) {
+      var v = parseVideo(m.video), img = safeSrc(m.img);
+      if (v) return Object.assign({ title: m.title, poster: img, thumb: img || v.thumb || '' }, v);
+      return { kind: 'image', src: img, thumb: img, title: m.title };
+    }).filter(function (x) { return x.src; });
+  }
+  function renderMedia() {
+    var list = S.lists.media, empty = !list.length;
+    $('#galerie').classList.toggle('hidden', empty && !editing);
+    $$('a[href="#galerie"]').forEach(function (a) { a.classList.toggle('hidden', empty && !editing); });
+    $('#media-grid').innerHTML = list.map(function (m) {
+      var v = parseVideo(m.video), th = safeSrc(m.img) || (v && v.thumb) || '';
+      return '<figure class="media-item editable-item" data-mid="' + esc(m.id) + '" tabindex="0" role="button" aria-label="Voir ' + esc(m.title || (v ? 'la vidéo' : 'la photo')) + '">' + tools('media', m.id) +
+        '<div class="ph media-ph">' + (th ? '<img class="slot-img" src="' + esc(th) + '" alt="' + esc(m.title || '') + '" loading="lazy">' : '<span>' + (v ? 'vidéo' : 'photo') + '</span>') + (v ? '<span class="play-ov" aria-hidden="true">▶</span>' : '') + '</div>' +
+        ((m.title || m.caption || editing) ? '<figcaption><b' + ed('media', m.id, 'title') + '>' + esc(m.title || (editing ? 'Titre' : '')) + '</b>' + (m.caption ? '<span' + ed('media', m.id, 'caption') + '>' + esc(m.caption) + '</span>' : '') + '</figcaption>' : '') + '</figure>';
+    }).join('') + addBtn('media', 'Ajouter une photo ou une vidéo');
+  }
+  function openMedia(id) {
+    var items = mediaItems(), list = S.lists.media.filter(function (m) { return safeSrc(m.img) || parseVideo(m.video); });
+    var i = list.findIndex(function (m) { return m.id === id; }); if (i > -1) lightbox(items, i);
+  }
+  $('#media-grid').addEventListener('click', function (e) {
+    if (e.target.closest('[data-act]') || (editing && e.target.closest('[data-e]'))) return;
+    var f = e.target.closest('[data-mid]'); if (f) openMedia(f.dataset.mid);
+  });
+  $('#media-grid').addEventListener('keydown', function (e) { var f = e.target.closest && e.target.closest('[data-mid]'); if (f && e.key === 'Enter' && !e.target.isContentEditable) openMedia(f.dataset.mid); });
+
+  /* Vidéos des boutons ▶ (accueil et « Pourquoi nous choisir ») */
+  function renderVideoTools() {
+    $$('[data-video]').forEach(function (b) {
+      var host = b.parentNode, t = $(':scope > .vid-tool', host), k = b.dataset.video, has = !!parseVideo(S.images['video_' + k]);
+      b.classList.toggle('has-video', has);
+      if (editing) {
+        if (!t) { t = document.createElement('button'); t.type = 'button'; t.className = 'vid-tool'; host.appendChild(t); }
+        t.dataset.vkey = k; t.textContent = has ? '🎬 Changer la vidéo' : '🎬 Ajouter une vidéo';
+      } else if (t) t.remove();
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('.vid-tool'); if (t && isAdmin) { e.preventDefault(); openVideoSetting(t.dataset.vkey); return; }
+    var b = e.target.closest('[data-video]'); if (!b) return;
+    var v = parseVideo(S.images['video_' + b.dataset.video]);
+    if (v) lightbox([Object.assign({ title: 'Vidéo de présentation' }, v)], 0);
+    else if (editing && isAdmin) openVideoSetting(b.dataset.video);
+    else openModal($('#video-modal'));
+  });
+
+  function renderAll() { renderServices(); renderStats(); renderProjects(); renderMedia(); renderProducts(); renderTeam(); renderTestimonials(); renderPartners(); renderPosts(); renderVideoTools(); renderCart(); }
+
+  /* ======================================================================
+     PANIER
+     ====================================================================== */
+  var CART_KEY = 'mloza-cart-v1', cart = [], cartSent = false;
+  try { cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]') || []; } catch (e) { cart = []; }
+  try { var cust = JSON.parse(localStorage.getItem(CART_KEY + '-client') || '{}'); } catch (e) { cust = {}; }
+  function saveCart() { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) { } }
+  function cartCount() { return cart.reduce(function (n, x) { return n + (+x.qty || 0); }, 0); }
+  /* Lit un prix « 4 500 KMF / sac » → { n: 4500, cur: 'KMF' } ; « Sur devis » → null */
+  function parsePrice(p) {
+    var m = /(\d[\d\s.,]*)\s*(KMF|FC|€|EUR|euros?|\$|USD)?/i.exec(p || ''); if (!m) return null;
+    var raw = m[1].replace(/\s/g, ''), n;
+    if (/,\d{1,2}$/.test(raw)) n = parseFloat(raw.replace(/\./g, '').replace(',', '.')); else n = parseFloat(raw.replace(/[.,](?=\d{3}(\D|$))/g, '').replace(',', '.'));
+    if (!isFinite(n)) return null;
+    var cur = (m[2] || '').toUpperCase(); if (/^EUR/.test(cur)) cur = '€'; if (cur === 'FC') cur = 'KMF';
+    return { n: n, cur: cur || 'KMF' };
+  }
+  function fmtMoney(n, cur) { return n.toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + ' ' + cur; }
+  function addToCart(p, qty, noteTxt) {
+    qty = Math.max(1, +qty || 1);
+    var line = cart.filter(function (x) { return x.id === p.id && (x.note || '') === (noteTxt || ''); })[0];
+    if (line) line.qty += qty;
+    else cart.push({ id: p.id, name: p.name, cat: p.cat, unit: p.unit || 'unité', price: p.price || 'Sur devis', img: imgsOf(p)[0] || '', qty: qty, note: noteTxt || '' });
+    cartSent = false; saveCart(); renderCart();
+    var b = $$('.cart-btn'); b.forEach(function (x) { x.classList.remove('bump'); void x.offsetWidth; x.classList.add('bump'); });
+    snack('« ' + p.name + ' » ajouté au panier' + (qty > 1 ? ' (× ' + qty + ')' : ''));
+  }
+  var snackT;
+  function snack(msg) {
+    var s = $('#cart-snack'); $('#cart-snack-txt').textContent = msg; s.classList.add('show');
+    clearTimeout(snackT); snackT = setTimeout(function () { s.classList.remove('show'); }, 4500);
+  }
+  function orderText() {
+    var c = { name: $('#c-name').value.trim(), phone: $('#c-phone').value.trim(), place: $('#c-place').value.trim(), note: $('#c-note').value.trim() };
+    var lines = cart.map(function (x, i) { return (i + 1) + '. ' + x.name + ' (' + x.cat + ') — ' + x.qty + ' × ' + x.unit + ' — ' + x.price + (x.note ? ' — ' + x.note : ''); });
+    var tot = cartTotal();
+    return 'Bonjour Mloza-Construction,\nVoici ma commande :\n' + lines.join('\n') +
+      (tot.text ? '\n\n' + tot.text : '') +
+      '\n\nNom : ' + (c.name || '—') + '\nTéléphone : ' + (c.phone || '—') + (c.place ? '\nLieu de livraison : ' + c.place : '') + (c.note ? '\nRemarque : ' + c.note : '') +
+      '\n\nMerci de me confirmer les prix, la disponibilité et le délai.';
+  }
+  function cartTotal() {
+    var sum = 0, cur = '', unknown = 0;
+    cart.forEach(function (x) { var p = parsePrice(x.price); if (p && (!cur || cur === p.cur)) { sum += p.n * x.qty; cur = p.cur; } else unknown++; });
+    if (!cart.length) return { html: '', text: '' };
+    if (!cur) return { html: 'Total : <b>sur devis</b>', text: 'Total : sur devis' };
+    var t = fmtMoney(sum, cur);
+    return unknown ? { html: 'Total indicatif : <b>' + t + '</b> <small>+ ' + unknown + ' article' + (unknown > 1 ? 's' : '') + ' sur devis</small>', text: 'Total indicatif : ' + t + ' (+ ' + unknown + ' article(s) sur devis)' }
+                   : { html: 'Total indicatif : <b>' + t + '</b>', text: 'Total indicatif : ' + t };
+  }
+  function renderCart() {
+    var n = cartCount();
+    $$('.cart-count').forEach(function (b) { b.textContent = n; b.classList.toggle('hidden', !n); });
+    document.body.classList.toggle('has-cart', n > 0);
+    var list = $('#cart-list'); if (!list) return;
+    list.innerHTML = cart.length ? cart.map(function (x, i) {
+      var p = parsePrice(x.price);
+      return '<li class="cart-line"><div class="cl-img">' + (safeSrc(x.img) ? '<img src="' + esc(x.img) + '" alt="">' : '<span>📦</span>') + '</div>' +
+        '<div class="cl-info"><b>' + esc(x.name) + '</b><small>' + esc(x.cat) + ' · ' + esc(x.price) + '</small>' + (x.note ? '<small class="cl-note">' + esc(x.note) + '</small>' : '') +
+        '<div class="cl-qty"><button type="button" data-cq="-" data-i="' + i + '" aria-label="Diminuer">−</button><input value="' + x.qty + '" inputmode="numeric" data-ci="' + i + '" aria-label="Quantité de ' + esc(x.name) + '"><button type="button" data-cq="+" data-i="' + i + '" aria-label="Augmenter">+</button><span>' + esc(x.unit) + '</span></div></div>' +
+        '<div class="cl-right">' + (p ? '<b>' + fmtMoney(p.n * x.qty, p.cur) + '</b>' : '<small>sur devis</small>') + '<button type="button" class="cl-del" data-cdel="' + i + '" aria-label="Retirer ' + esc(x.name) + '">Retirer</button></div></li>';
+    }).join('') : '<li class="cart-empty"><span>🛒</span>Votre panier est vide.<br><a href="#materiaux" data-cart-close>Voir les matériaux →</a></li>';
+    $('#cart-total').innerHTML = cartTotal().html;
+    $('#cart-form').classList.toggle('hidden', !cart.length);
+    updOrderLinks();
+  }
+  function updOrderLinks() {
+    if (!cart.length) return;
+    var t = orderText();
+    $('#cart-wa1').href = waLink(t, 1); $('#cart-wa2').href = waLink(t, 2);
+    $('#cart-wa2-n').textContent = txt('phone2'); $('#cart-wa1-n').textContent = txt('phone');
+  }
+  function openCart() { renderCart(); $('#cart-done').classList.toggle('hidden', !cartSent); $('#cart').hidden = false; document.body.style.overflow = 'hidden'; setTimeout(function () { $('#cart .cart-close').focus(); }, 30); }
+  function closeCart() { $('#cart').hidden = true; if (!$$('.modal').some(function (x) { return !x.hidden; })) document.body.style.overflow = ''; }
+  $$('[data-open-cart]').forEach(function (b) { b.addEventListener('click', openCart); });
+  $('#cart').addEventListener('click', function (e) {
+    if (e.target.id === 'cart' || e.target.closest('[data-cart-close]')) { closeCart(); return; }
+    var q = e.target.closest('[data-cq]'), d = e.target.closest('[data-cdel]');
+    if (q) { var x = cart[+q.dataset.i]; x.qty = Math.max(1, x.qty + (q.dataset.cq === '+' ? 1 : -1)); saveCart(); renderCart(); }
+    if (d) { cart.splice(+d.dataset.cdel, 1); saveCart(); renderCart(); }
+  });
+  $('#cart').addEventListener('change', function (e) { var i = e.target.dataset.ci; if (i == null) return; cart[+i].qty = Math.max(1, parseInt(e.target.value, 10) || 1); saveCart(); renderCart(); });
+  $('#cart').addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeCart(); } });
+  ['#c-name', '#c-phone', '#c-place', '#c-note'].forEach(function (s) {
+    var el = $(s); if (cust && cust[s]) el.value = cust[s];
+    el.addEventListener('input', function () { cust = cust || {}; cust[s] = el.value; try { localStorage.setItem(CART_KEY + '-client', JSON.stringify(cust)); } catch (e) { } updOrderLinks(); el.classList.remove('invalid'); });
+  });
+  function sendOrder(e) {
+    var okN = $('#c-name').value.trim().length > 1, okP = $('#c-phone').value.replace(/\D/g, '').length >= 6;
+    $('#c-name').classList.toggle('invalid', !okN); $('#c-phone').classList.toggle('invalid', !okP);
+    if (!okN || !okP) { e.preventDefault(); $('#cart-err').hidden = false; (okN ? $('#c-phone') : $('#c-name')).focus(); return; }
+    $('#cart-err').hidden = true; updOrderLinks();
+    // Copie de la commande dans « Demandes » (espace administrateur)
+    Store.addMessage({ name: $('#c-name').value.trim(), email: '', phone: $('#c-phone').value.trim(), type: 'Commande', msg: orderText() }).then(function () { refreshCount(); }, function () { });
+    cartSent = true; $('#cart-done').classList.remove('hidden');
+  }
+  $('#cart-wa1').addEventListener('click', sendOrder);
+  $('#cart-wa2').addEventListener('click', sendOrder);
+  $('#cart-clear').addEventListener('click', function () { cart = []; cartSent = false; saveCart(); renderCart(); $('#cart-done').classList.add('hidden'); });
+  $('#cart-empty-btn').addEventListener('click', function () { askConfirm('Tous les articles seront retirés de votre panier.', function () { cart = []; saveCart(); renderCart(); }); });
+  $('#cart-snack-btn').addEventListener('click', function () { $('#cart-snack').classList.remove('show'); openCart(); });
 
   /* ============ FORMULAIRE DE DEVIS ============ */
   var form = $('#quote'), sent = $('#sent'), tried = false;
@@ -1649,7 +2431,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
       $('#sent-txt').textContent = 'Merci ' + m.name + ', nous revenons vers vous très vite.';
       form.hidden = true; sent.hidden = false; refreshCount();
     }, function () {
-      $('#form-err').textContent = "L'envoi a échoué. Réessayez ou écrivez-nous sur WhatsApp au " + txt('phone') + ' ou au ' + txt('phone2') + '.'; $('#form-err').hidden = false;
+      $('#form-err').textContent = (arguments[0] && /Trop de demandes|saturé/.test(arguments[0].message || '') ? arguments[0].message + ' ' : "L'envoi a échoué. ") + 'Vous pouvez aussi nous écrire sur WhatsApp au ' + txt('phone') + ' ou au ' + txt('phone2') + '.'; $('#form-err').hidden = false;
     }).then(function () { btn.disabled = false; btn.textContent = 'Envoyer la demande →'; });
   });
   $('#reset').addEventListener('click', function () { form.reset(); tried = false; $('#form-err').hidden = true; $$('.invalid', form).forEach(function (x) { x.classList.remove('invalid'); }); sent.hidden = true; form.hidden = false; });
@@ -1667,14 +2449,13 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
   /* ============ FENÊTRES ============ */
   var lastFocus = null;
   function openModal(m) { lastFocus = document.activeElement; m.hidden = false; document.body.style.overflow = 'hidden'; var f = m.querySelector('input,textarea,select') || $('[data-close]', m); if (f) setTimeout(function () { f.focus(); }, 30); }
-  function closeModal(m) { m.hidden = true; if (!$$('.modal').some(function (x) { return !x.hidden; })) document.body.style.overflow = ''; if (lastFocus && lastFocus.focus) lastFocus.focus(); }
+  function closeModal(m) { $$('video', m).forEach(function (v) { try { v.pause(); } catch (e) { } }); if (m.id === 'prod-modal' && PV) PV.stop(); if (m.id === 'detail-modal' && DV) DV.stop(); m.hidden = true; if (!$$('.modal').some(function (x) { return !x.hidden; })) document.body.style.overflow = ''; if (lastFocus && lastFocus.focus) lastFocus.focus(); }
   $$('.modal').forEach(function (m) { m.addEventListener('click', function (e) { if (e.target === m || e.target.closest('[data-close]')) closeModal(m); }); });
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
     var open = $$('.modal').filter(function (m) { return !m.hidden; }); if (open.length) closeModal(open[open.length - 1]);
     setMenu(false);
   });
-  $$('[data-video]').forEach(function (b) { b.addEventListener('click', function () { openModal($('#video-modal')); }); });
 
   var LEGAL = {
     legal: function () {
@@ -1702,12 +2483,13 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
   var SCHEMAS = {
     services: { one: 'un onglet de services', fields: [['label', "Nom de l'onglet", 'text', 1], ['#', 'Carte 1'], ['c1t', 'Titre', 'text', 1], ['c1p', 'Texte', 'textarea'], ['c1i', 'Photo', 'image'], ['#', 'Carte 2 (facultative)'], ['c2t', 'Titre'], ['c2p', 'Texte', 'textarea'], ['c2i', 'Photo', 'image'], ['#', 'Carte 3 (facultative)'], ['c3t', 'Titre'], ['c3p', 'Texte', 'textarea'], ['c3i', 'Photo', 'image']] },
     stats: { one: 'un chiffre clé', fields: [['value', 'Valeur (ex. 2k, 150, 1.9k)', 'text', 1], ['label', 'Libellé', 'text', 1], ['icon', 'Icône', 'icon']] },
-    projects: { one: 'un projet', fields: [['name', 'Nom du projet', 'text', 1], ['desc', 'Résumé (affiché sur la carte)', 'textarea', 1], ['details', 'Description détaillée (fenêtre « Lire plus »)', 'textarea'], ['img', 'Photo principale', 'image'], ['gallery', 'Photos supplémentaires', 'gallery']] },
-    products: { one: 'un produit', fields: [['name', 'Nom du produit', 'text', 1], ['cat', 'Catégorie', 'cat', 1], ['unit', 'Unité (sac, m³, pièce…)', 'text'], ['price', 'Prix (ex. 4 500 KMF / sac, ou « Sur devis »)', 'text'], ['desc', 'Description', 'textarea'], ['img', 'Photo principale', 'image'], ['gallery', 'Photos supplémentaires', 'gallery']] },
+    projects: { one: 'un projet', fields: [['name', 'Nom du projet', 'text', 1], ['desc', 'Résumé (affiché sur la carte)', 'textarea', 1], ['details', 'Description détaillée (fenêtre « Lire plus »)', 'textarea'], ['img', 'Photo principale', 'image'], ['gallery', 'Photos supplémentaires', 'gallery'], ['video', 'Vidéo (facultative) : lien YouTube… ou fichier', 'video']] },
+    products: { one: 'un produit', fields: [['name', 'Nom du produit', 'text', 1], ['cat', 'Catégorie', 'cat', 1], ['unit', 'Unité (sac, m³, pièce…)', 'text'], ['price', 'Prix (ex. 4 500 KMF / sac, ou « Sur devis »)', 'text'], ['desc', 'Description', 'textarea'], ['img', 'Photo principale', 'image'], ['gallery', 'Photos supplémentaires', 'gallery'], ['video', 'Vidéo (facultative) : lien YouTube… ou fichier', 'video']] },
     categories: { one: 'une catégorie de matériaux', fields: [['name', 'Nom de la catégorie', 'text', 1]] },
     team: { one: 'un membre de l\'équipe', fields: [['name', 'Nom', 'text', 1], ['role', 'Fonction', 'text'], ['img', 'Portrait', 'image']] },
     testimonials: { one: 'un témoignage', fields: [['quote', 'Témoignage', 'textarea', 1], ['name', 'Nom du client', 'text', 1], ['role', 'Fonction / entreprise', 'text'], ['img', 'Photo', 'image']] },
-    posts: { one: 'un article', fields: [['title', 'Titre', 'text', 1], ['date', 'Date affichée', 'text', 1], ['cat', 'Rubrique (ex. Chantier)', 'text'], ['read', 'Temps de lecture (ex. 4 min)', 'text'], ['body', "Texte de l'article", 'textarea'], ['img', 'Photo principale', 'image'], ['gallery', 'Photos supplémentaires', 'gallery']] },
+    posts: { one: 'un article', fields: [['title', 'Titre', 'text', 1], ['date', 'Date affichée', 'text', 1], ['cat', 'Rubrique (ex. Chantier)', 'text'], ['read', 'Temps de lecture (ex. 4 min)', 'text'], ['body', "Texte de l'article", 'textarea'], ['img', 'Photo principale', 'image'], ['gallery', 'Photos supplémentaires', 'gallery'], ['video', 'Vidéo (facultative) : lien YouTube… ou fichier', 'video']] },
+    media: { one: 'une photo ou une vidéo à la galerie', fields: [['title', 'Titre'], ['caption', 'Légende / description', 'textarea'], ['img', 'Photo (ou image de couverture si c\'est une vidéo)', 'image'], ['video', 'Vidéo publicitaire : lien YouTube, Facebook… ou fichier', 'video']] },
     partners: { one: 'un logo partenaire', fields: [['name', 'Nom du partenaire', 'text', 1], ['img', 'Logo (image PNG ou JPG)', 'image'], ['url', 'Site web (facultatif)', 'text']] }
   };
   var ICONS = ['◧', '◉', '◆', '★', '▲', '●', '■', '⬢', '✓'];
@@ -1727,7 +2509,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
     if (!it && coll === 'posts') { var d = new Date(); vals.date = ('0' + d.getDate()).slice(-2) + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear(); }
     if (!it && coll === 'products') { vals.price = 'Sur devis'; if (cat !== 'Tous') vals.cat = cat; }
     if (!it && coll === 'stats') vals.icon = '◆';
-    editCtx = { coll: coll, id: id, imgs: {}, gal: {}, oldName: it && coll === 'categories' ? it.name : null };
+    editCtx = { coll: coll, id: id, imgs: {}, gal: {}, vids: {}, oldName: it && coll === 'categories' ? it.name : null };
     $('#edit-t').textContent = (it ? (coll === 'categories' ? 'Renommer ' : 'Modifier ') : 'Ajouter ') + sc.one;
     var catNames = catList().map(function (c) { return c.name; });
     $('#edit-fields').innerHTML = sc.fields.map(function (f) {
@@ -1736,6 +2518,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
       if (f[2] === 'textarea') return '<div class="adm-field"><label for="' + idf + '">' + lab + '</label><textarea id="' + idf + '" data-k="' + k + '" rows="4">' + esc(v) + '</textarea></div>';
       if (f[2] === 'icon') return '<div class="adm-field"><label for="' + idf + '">' + lab + '</label><select id="' + idf + '" data-k="' + k + '">' + ICONS.map(function (ic) { return '<option' + (ic === v ? ' selected' : '') + '>' + ic + '</option>'; }).join('') + '</select></div>';
       if (f[2] === 'image') { editCtx.imgs[k] = safeSrc(v); return '<div class="adm-field"><label>' + lab + '</label><div class="img-pick" data-ik="' + k + '"></div></div>'; }
+      if (f[2] === 'video') { editCtx.vids[k] = typeof v === 'string' ? v : ''; return '<div class="adm-field"><label for="ef-' + k + '">' + lab + '</label><div class="vid-pick" data-vk="' + k + '"></div></div>'; }
       if (f[2] === 'gallery') { editCtx.gal[k] = (Array.isArray(v) ? v : []).map(safeSrc).filter(Boolean); return '<div class="adm-field"><label>' + lab + ' <span style="text-transform:none;font-weight:400;color:var(--muted)">(jusqu\'à ' + MAX_GALLERY + ')</span></label><div class="gal-pick" data-gk="' + k + '"></div></div>'; }
       if (f[2] === 'cat') {
         var opts = catNames.slice(); if (v && opts.indexOf(v) < 0) opts.push(v);
@@ -1747,6 +2530,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
     }).join('');
     $$('.img-pick', $('#edit-fields')).forEach(renderPick);
     $$('.gal-pick', $('#edit-fields')).forEach(renderGal);
+    $$('.vid-pick', $('#edit-fields')).forEach(renderVid);
     var cs = $('[data-catsel]', $('#edit-fields'));
     if (cs) { var sync = function () { $('#ef-newcat').classList.toggle('hidden', cs.value !== '__new'); if (cs.value === '__new') $('#ef-newcat').focus(); }; cs.addEventListener('change', sync); if (!catNames.length) { cs.value = '__new'; $('#ef-newcat').classList.remove('hidden'); } }
     $('#edit-err').hidden = true;
@@ -1754,24 +2538,35 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
   }
   function renderPick(el) {
     var k = el.dataset.ik, src = editCtx.imgs[k];
-    el.innerHTML = '<div class="thumb">' + (src ? '<img src="' + esc(src) + '" alt="">' : 'aucune') + '</div><label tabindex="0" role="button" data-pick="' + k + '">📷 ' + (src ? 'Changer' : 'Choisir une photo') + '</label>' + (src ? '<button type="button" data-unpick="' + k + '">Retirer</button>' : '');
+    el.innerHTML = '<div class="thumb">' + (src ? '<img src="' + esc(src) + '" alt="">' : 'aucune') + '</div><label tabindex="0" role="button" data-pick="' + k + '">📷 ' + (src ? 'Changer' : 'Choisir une photo') + '</label>' + (src ? '<button type="button" class="recrop" data-recrop="' + k + '">✂ Recadrer</button><button type="button" data-unpick="' + k + '">Retirer</button>' : '');
   }
   function renderGal(el) {
     var k = el.dataset.gk, a = editCtx.gal[k];
     el.innerHTML = a.map(function (s, i) { return '<div class="g-item"><img src="' + esc(s) + '" alt=""><button type="button" data-gdel="' + i + '" aria-label="Retirer la photo ' + (i + 1) + '">×</button></div>'; }).join('') +
       (a.length < MAX_GALLERY ? '<label class="g-add" tabindex="0" role="button" data-gadd="' + k + '">＋ Ajouter des photos</label>' : '');
   }
+  function renderVid(el) {
+    var k = el.dataset.vk, v = editCtx.vids[k] || '', info = parseVideo(v), shown = /^(blob:|data:)/.test(v) ? '' : v;
+    el.innerHTML = '<input id="ef-' + k + '" class="vid-url" type="url" placeholder="https://www.youtube.com/watch?v=…" value="' + esc(shown) + '">' +
+      '<div class="vid-row"><label tabindex="0" role="button" data-vup="' + k + '">⬆ Envoyer une vidéo depuis l\'appareil</label>' + (v ? '<button type="button" data-vdel="' + k + '">Retirer</button>' : '') + '</div>' +
+      '<small class="vid-info">' + (!v ? 'Aucune vidéo. Collez un lien YouTube, Vimeo ou Facebook, ou envoyez un fichier (50 Mo max).' : info ? (info.kind === 'embed' ? '✓ Vidéo ' + (/vimeo/.test(info.src) ? 'Vimeo' : 'YouTube') + ' reconnue' : info.kind === 'file' ? '✓ Fichier vidéo enregistré' : '✓ Lien vidéo (s\'ouvrira dans un nouvel onglet)') : '⚠ Le lien doit commencer par https://') + '</small>';
+  }
+  $('#edit-fields').addEventListener('input', function (e) { if (e.target.classList.contains('vid-url')) { var box = e.target.closest('.vid-pick'); editCtx.vids[box.dataset.vk] = e.target.value.trim(); var info = parseVideo(e.target.value.trim()); $('.vid-info', box).textContent = !e.target.value.trim() ? 'Aucune vidéo.' : info ? '✓ Lien vidéo reconnu' : '⚠ Le lien doit commencer par https://'; } });
   $('#edit-fields').addEventListener('click', function (e) {
-    var p = e.target.closest('[data-pick]'), u = e.target.closest('[data-unpick]'), ga = e.target.closest('[data-gadd]'), gd = e.target.closest('[data-gdel]');
-    if (p) { e.preventDefault(); pickImage().then(function (src) { if (src) { editCtx.imgs[p.dataset.pick] = src; renderPick(p.parentNode); } }); }
+    var p = e.target.closest('[data-pick]'), u = e.target.closest('[data-unpick]'), ga = e.target.closest('[data-gadd]'), gd = e.target.closest('[data-gdel]'), rc = e.target.closest('[data-recrop]'), vu = e.target.closest('[data-vup]'), vd = e.target.closest('[data-vdel]');
+    var popts = function (k) { return { ratio: ratioFor(editCtx.coll, k), png: editCtx.coll === 'partners' }; };
+    if (p) { e.preventDefault(); pickImage(popts(p.dataset.pick)).then(function (src) { if (src) { editCtx.imgs[p.dataset.pick] = src; renderPick(p.parentNode); } }); }
+    if (rc) { var box0 = rc.parentNode, k0 = rc.dataset.recrop; recrop(editCtx.imgs[k0], Object.assign(popts(k0), { title: 'Recadrer la photo' })).then(function (src) { if (src) { editCtx.imgs[k0] = src; renderPick(box0); } }); }
+    if (vu) { e.preventDefault(); var vb = vu.closest('.vid-pick'); pickVideo().then(function (url) { if (url) { editCtx.vids[vb.dataset.vk] = url; renderVid(vb); } }); }
+    if (vd) { var vb2 = vd.closest('.vid-pick'); editCtx.vids[vb2.dataset.vk] = ''; renderVid(vb2); }
     if (u) { editCtx.imgs[u.dataset.unpick] = ''; renderPick(u.parentNode); }
     if (ga) {
       e.preventDefault(); var box = ga.parentNode, k = ga.dataset.gadd;
-      pickImages(MAX_GALLERY - editCtx.gal[k].length).then(function (list) { editCtx.gal[k] = editCtx.gal[k].concat(list).slice(0, MAX_GALLERY); renderGal(box); });
+      pickImages(MAX_GALLERY - editCtx.gal[k].length, { ratio: ratioFor(editCtx.coll, k) }).then(function (list) { editCtx.gal[k] = editCtx.gal[k].concat(list).slice(0, MAX_GALLERY); renderGal(box); });
     }
     if (gd) { var bx = gd.closest('.gal-pick'); editCtx.gal[bx.dataset.gk].splice(+gd.dataset.gdel, 1); renderGal(bx); }
   });
-  $('#edit-fields').addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-pick],[data-gadd]')) { e.preventDefault(); e.target.click(); } });
+  $('#edit-fields').addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-pick],[data-gadd],[data-vup]')) { e.preventDefault(); e.target.click(); } });
 
   function maxOrder(coll) { return S.lists[coll].reduce(function (m, x) { return Math.max(m, x.order || 0); }, 0); }
   function upsertLocal(coll, it) {
@@ -1790,8 +2585,20 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
   }
   function saveMany(coll, items) { return items.reduce(function (p, it) { return p.then(function () { return Store.saveItem(coll, it).then(function (s) { upsertLocal(coll, s); }); }); }, Promise.resolve()); }
 
+  /* Vidéo d'un bouton ▶ */
+  function openVideoSetting(key) {
+    editCtx = { special: 'video', key: key, vids: { video: S.images['video_' + key] || '' }, imgs: {}, gal: {} };
+    $('#edit-t').textContent = key === 'hero' ? "Vidéo du bouton ▶ de l'accueil" : 'Vidéo du bouton ▶ « Pourquoi nous choisir »';
+    $('#edit-fields').innerHTML = '<div class="adm-field"><label for="ef-video">Vidéo publicitaire</label><div class="vid-pick" data-vk="video"></div></div>';
+    renderVid($('.vid-pick', $('#edit-fields'))); $('#edit-err').hidden = true; openModal($('#edit-modal'));
+  }
   $('#edit-form').addEventListener('submit', function (e) {
     e.preventDefault();
+    if (editCtx.special === 'video') {
+      var vv = (editCtx.vids.video || '').trim(), key = 'video_' + editCtx.key;
+      if (vv && !parseVideo(vv)) { $('#edit-err').textContent = 'Le lien de la vidéo doit commencer par https://'; $('#edit-err').hidden = false; return; }
+      return Store.saveImage(key, vv || null).then(function () { if (vv) S.images[key] = vv; else delete S.images[key]; renderVideoTools(); closeModal($('#edit-modal')); toast(vv ? 'Vidéo enregistrée' : 'Vidéo retirée'); }, function (er) { $('#edit-err').textContent = errMsg(er); $('#edit-err').hidden = false; });
+    }
     var form = this, coll = editCtx.coll, sc = SCHEMAS[coll], isNew = !editCtx.id || /^virtual:/.test(editCtx.id || '');
     var base = !isNew ? Object.assign({}, findItem(coll, editCtx.id)) : { order: maxOrder(coll) + 1 };
     var missing = [];
@@ -1800,11 +2607,13 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
       var v;
       if (f[2] === 'image') v = editCtx.imgs[f[0]] || '';
       else if (f[2] === 'gallery') v = editCtx.gal[f[0]] || [];
+      else if (f[2] === 'video') { v = (editCtx.vids[f[0]] || '').trim(); if (v && !parseVideo(v)) missing.push(f[1] + ' (le lien doit commencer par https://)'); }
       else if (f[2] === 'cat') { var cs = $('[data-k="cat"]', form); v = cs.value === '__new' ? $('#ef-newcat').value.trim() : cs.value; var match = catList().filter(function (c) { return sameName(c.name, v); })[0]; if (match) v = match.name; }
       else { var el = $('[data-k="' + f[0] + '"]', form); v = el ? el.value.trim() : ''; if (el) el.classList.toggle('invalid', !!(f[3] && !v)); }
       if (f[3] && !v) missing.push(f[1]);
       base[f[0]] = v;
     });
+    if (coll === 'media' && !base.img && !base.video) missing.push('une photo ou une vidéo');
     if (missing.length) { $('#edit-err').textContent = 'À compléter : ' + missing.join(', ') + '.'; $('#edit-err').hidden = false; return; }
     if (coll === 'categories' && catList().some(function (c) { return sameName(c.name, base.name) && !sameName(c.name, editCtx.oldName); })) {
       $('#edit-err').textContent = 'Une catégorie porte déjà ce nom.'; $('#edit-err').hidden = false; return;
@@ -1851,7 +2660,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
 
     if (act === 'photo' || act === 'cardphoto') {   // changement rapide de photo
       var field = b.dataset.field || 'img';
-      return pickImage().then(function (src) {
+      return pickImage({ ratio: field === 'img' ? ratioFor(coll, field) : '16:9', png: coll === 'partners' }).then(function (src) {
         if (!src) return;
         var it = Object.assign({}, findItem(coll, id)); it[field] = src;
         return Store.saveItem(coll, it).then(function (s) { upsertLocal(coll, s); renderAll(); toast('Photo enregistrée'); });
@@ -1968,8 +2777,8 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
     Store.listMessages().then(function (a) {
       $('#adm-count').textContent = a.length;
       box.innerHTML = a.length ? a.map(function (m) {
-        return '<div class="msg"><header><span><b>' + esc(m.name || m.email) + '</b></span><span class="tagm">' + esc(m.type) + '</span></header>' +
-          '<div class="meta"><a href="mailto:' + esc(m.email) + '">' + esc(m.email) + '</a>' + (m.phone ? '<a href="tel:' + esc(m.phone.replace(/[^\d+]/g, '')) + '">' + esc(m.phone) + '</a>' : '') + '<span>' + esc(fmtDate(m.date)) + '</span></div>' +
+        return '<div class="msg' + (m.type === 'Commande' ? ' msg--order' : '') + '"><header><span><b>' + esc(m.name || m.email || m.phone) + '</b></span><span class="tagm">' + esc(m.type) + '</span></header>' +
+          '<div class="meta">' + (m.email ? '<a href="mailto:' + esc(m.email) + '">' + esc(m.email) + '</a>' : '') + (m.phone ? '<a href="tel:' + esc(m.phone.replace(/[^\d+]/g, '')) + '">' + esc(m.phone) + '</a>' : '') + '<span>' + esc(fmtDate(m.date)) + '</span></div>' +
           (m.msg ? '<p>' + esc(m.msg) + '</p>' : '') + '<button type="button" class="del" data-msg="' + esc(m.id) + '">Supprimer</button></div>';
       }).join('') : '<p class="empty">Aucune demande pour le moment.</p>';
     }, function (er) { box.innerHTML = '<p class="empty">' + esc(errMsg(er)) + '</p>'; });
@@ -1983,11 +2792,14 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
   /* Connexion / déconnexion */
   function openLogin() {
     if (isAdmin) return toast('Vous êtes déjà connecté en administrateur.');
-    $('#login-err').hidden = !loadErr; if (loadErr) $('#login-err').textContent = setupMsg(); $('#login-demo').classList.toggle('hidden', !Store.demo); $('#l-forgot').classList.toggle('hidden', Store.demo);
+    if (framed && useOnline) return toast("Pour votre sécurité, l'administration s'ouvre uniquement depuis l'adresse du site.", true);
+    $('#login-err').hidden = !loadErr; if (loadErr) $('#login-err').textContent = setupMsg();
+    var showDemo = Store.demo && !!DEMO_PASS; $('#login-demo').classList.toggle('hidden', !showDemo); $('#l-forgot').classList.toggle('hidden', Store.demo);
+    if (showDemo) { $('#demo-email').textContent = DEMO_EMAIL; $('#demo-pass').textContent = DEMO_PASS; }
     openModal($('#login-modal'));
   }
   $('#admin-link').addEventListener('click', openLogin);
-  function checkHash() { if (location.hash === '#admin') { openLogin(); history.replaceState(null, '', location.pathname + location.search); } }
+  function checkHash() { if (location.hash === '#admin') { history.replaceState(null, '', location.pathname + location.search); openLogin(); } }
   window.addEventListener('hashchange', checkHash);
 
   function authErr(e) {
@@ -1998,13 +2810,21 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
     if (/network/.test(c)) return 'Connexion impossible. Vérifiez votre connexion internet.';
     return 'Connexion impossible. Réessayez.';
   }
+  /* Anti-force brute côté navigateur (Supabase limite aussi les tentatives côté serveur) */
+  var fails = 0, lockUntil = 0;
+  try { var lk = JSON.parse(sessionStorage.getItem('mloza-lock') || '{}'); fails = lk.f || 0; lockUntil = lk.u || 0; } catch (e) { }
+  function saveLock() { try { sessionStorage.setItem('mloza-lock', JSON.stringify({ f: fails, u: lockUntil })); } catch (e) { } }
   $('#login-form').addEventListener('submit', function (e) {
     e.preventDefault();
     var em = $('#l-email').value, pw = $('#l-pass').value, err = $('#login-err');
+    var wait = Math.ceil((lockUntil - Date.now()) / 1000);
+    if (wait > 0) { err.textContent = 'Trop de tentatives. Réessayez dans ' + wait + ' s.'; err.hidden = false; return; }
     if (!emailRe.test(em.trim()) || !pw) { err.textContent = 'Saisissez votre e-mail et votre mot de passe.'; err.hidden = false; return; }
     var b = $('#l-submit'); b.disabled = true; b.textContent = 'Connexion…';
-    Store.login(em, pw).then(function () { $('#l-pass').value = ''; closeModal($('#login-modal')); }, function (er) { err.textContent = authErr(er); err.hidden = false; })
-      .then(function () { b.disabled = false; b.textContent = 'Se connecter →'; });
+    Store.login(em, pw).then(function () { fails = 0; lockUntil = 0; saveLock(); $('#l-pass').value = ''; closeModal($('#login-modal')); }, function (er) {
+      fails++; if (fails >= 5) { lockUntil = Date.now() + Math.min(15 * 60, 30 * Math.pow(2, fails - 5)) * 1000; } saveLock();
+      err.textContent = authErr(er) + (fails >= 5 ? ' Connexion bloquée quelques instants.' : ''); err.hidden = false; $('#l-pass').value = '';
+    }).then(function () { b.disabled = false; b.textContent = 'Se connecter →'; });
   });
   $('#l-forgot').addEventListener('click', function () {
     var em = $('#l-email').value.trim(), err = $('#login-err');
@@ -2023,6 +2843,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
   $('#adm-logout').addEventListener('click', function () { Store.logout().then(function () { toast('Vous êtes déconnecté.'); }); });
 
   function onAuthChange(user, ok) {
+    if (user && ok === 'mfa') { isAdmin = false; document.body.classList.remove('is-admin'); $('#adm-bar').classList.add('hidden'); openMfaPrompt(); return; }
     if (user && !ok) { toast(loadErr ? setupMsg() : "Ce compte n'a pas les droits d'administrateur (son e-mail doit figurer dans la table admins).", true); Store.logout(); return; }
     isAdmin = ok;
     document.body.classList.toggle('is-admin', ok);
@@ -2030,10 +2851,90 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
     $('#adm-demo').classList.toggle('hidden', !Store.demo);
     if (ok) {
       Store.seedIfNeeded().catch(function () { });
-      refreshCount();
+      refreshCount(); armIdle();
       toast('Connecté en administrateur');
-    } else if (editing) setEditing(false);
+      if (!Store.demo) Store.mfaState().then(function (st) { $('#adm-sec').classList.toggle('warn', !st.factors.length); }, function () { });
+    } else { if (editing) setEditing(false); clearTimeout(idleT); }
   }
+
+  /* Déconnexion automatique après 30 minutes sans activité (ordinateur partagé, oubli…) */
+  var idleT = null, IDLE_MS = 30 * 60 * 1000;
+  function armIdle() { clearTimeout(idleT); if (isAdmin) idleT = setTimeout(function () { Store.logout().then(function () { toast('Déconnecté automatiquement après 30 minutes sans activité.'); }); }, IDLE_MS); }
+  ['click', 'keydown', 'scroll', 'touchstart'].forEach(function (ev) { document.addEventListener(ev, function () { if (isAdmin) armIdle(); }, { passive: true }); });
+
+  /* ---------- Double authentification : saisie du code à la connexion ---------- */
+  function openMfaPrompt() {
+    $('#mfa-err').hidden = true; $('#mfa-code').value = '';
+    Store.mfaState().then(function (st) { mfaFactor = st.factors[0] && st.factors[0].id; }, function () { });
+    openModal($('#mfa-modal'));
+  }
+  var mfaFactor = null;
+  $('#mfa-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var code = $('#mfa-code').value.replace(/\D/g, ''), err = $('#mfa-err');
+    if (code.length !== 6) { err.textContent = 'Saisissez les 6 chiffres affichés dans votre application.'; err.hidden = false; return; }
+    var go = function () { return Store.mfaVerify(mfaFactor, code); };
+    (mfaFactor ? go() : Store.mfaState().then(function (st) { mfaFactor = st.factors[0] && st.factors[0].id; return go(); }))
+      .then(function () { closeModal($('#mfa-modal')); return Store.recheck(); })
+      .catch(function () { err.textContent = 'Code incorrect ou expiré. Réessayez avec le nouveau code.'; err.hidden = false; $('#mfa-code').value = ''; });
+  });
+  $('#mfa-cancel').addEventListener('click', function () { closeModal($('#mfa-modal')); Store.logout(); });
+
+  /* ---------- Panneau « Sécurité » de l'administrateur ---------- */
+  var enrollCtx = null;
+  function renderSec() {
+    var box = $('#sec-body'); box.innerHTML = '<p class="empty">Chargement…</p>';
+    if (Store.demo) { box.innerHTML = '<p class="adm-note">La double authentification et le changement de mot de passe seront disponibles sur le vrai site, relié à Supabase.</p>'; return; }
+    Store.mfaState().then(function (st) {
+      var on = st.factors.length > 0;
+      $('#adm-sec').classList.toggle('warn', !on);
+      box.innerHTML =
+        '<div class="sec-card ' + (on ? 'ok' : 'warn') + '"><b>' + (on ? '✓ Double authentification activée' : '⚠ Double authentification désactivée') + '</b>' +
+        '<p>' + (on ? 'Même si quelqu\'un découvre votre mot de passe, il ne pourra pas se connecter sans le code de votre téléphone.' : 'Recommandé : en plus du mot de passe, un code à 6 chiffres de votre téléphone sera demandé à chaque connexion.') + '</p>' +
+        (on ? '<button type="button" class="btn btn--ghost" id="sec-off">Désactiver</button>' : '<button type="button" class="btn" id="sec-on">Activer la double authentification</button>') + '</div>' +
+        '<div id="sec-enroll" class="hidden"></div>' +
+        '<form class="sec-card" id="sec-pw" novalidate><b>Changer mon mot de passe</b><p>12 caractères minimum, avec lettres, chiffres et symboles. Ne le réutilisez nulle part ailleurs.</p>' +
+        '<div class="adm-fields"><div class="adm-field"><label for="sec-p1">Nouveau mot de passe</label><input id="sec-p1" type="password" autocomplete="new-password"></div>' +
+        '<div class="adm-field"><label for="sec-p2">Confirmer</label><input id="sec-p2" type="password" autocomplete="new-password"></div></div>' +
+        '<p class="adm-err" id="sec-pw-err" hidden></p><div class="adm-actions"><button class="btn" type="submit">Enregistrer le mot de passe</button></div></form>';
+      var factorId = on ? st.factors[0].id : null;
+      if ($('#sec-on')) $('#sec-on').addEventListener('click', startEnroll);
+      if ($('#sec-off')) $('#sec-off').addEventListener('click', function () {
+        askConfirm('Votre compte ne sera plus protégé que par le mot de passe.', function () {
+          Store.mfaUnenroll(factorId).then(function () { toast('Double authentification désactivée'); renderSec(); }, function () { toast('Action refusée. Déconnectez-vous puis reconnectez-vous avec votre code, et réessayez.', true); });
+        });
+      });
+      $('#sec-pw').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var a = $('#sec-p1').value, b = $('#sec-p2').value, er = $('#sec-pw-err');
+        var strong = a.length >= 12 && /[a-z]/i.test(a) && /\d/.test(a) && /[^a-z0-9]/i.test(a);
+        if (!strong) { er.textContent = 'Mot de passe trop faible : 12 caractères minimum avec lettres, chiffres et symboles.'; er.hidden = false; return; }
+        if (a !== b) { er.textContent = 'Les deux mots de passe ne sont pas identiques.'; er.hidden = false; return; }
+        Store.updatePassword(a).then(function () { er.hidden = true; $('#sec-p1').value = $('#sec-p2').value = ''; toast('Mot de passe modifié'); }, function (x) {
+          er.textContent = /reauth|recent|nonce/i.test((x && (x.message + x.code)) || '') ? 'Par sécurité, déconnectez-vous et reconnectez-vous, puis réessayez.' : /weak|short|pwned|leaked/i.test((x && x.message) || '') ? 'Mot de passe refusé par Supabase (trop faible ou déjà divulgué). Choisissez-en un autre.' : 'La modification a échoué. Réessayez.';
+          er.hidden = false;
+        });
+      });
+    }, function (er) { box.innerHTML = '<p class="empty">' + esc(errMsg(er)) + '</p>'; });
+  }
+  function startEnroll() {
+    var box = $('#sec-enroll'); box.classList.remove('hidden'); box.innerHTML = '<p class="empty">Préparation…</p>';
+    Store.mfaEnroll().then(function (f) {
+      enrollCtx = f;
+      var qr = typeof f.qr === 'string' && /^data:image\/svg\+xml/.test(f.qr) ? f.qr : '';
+      box.innerHTML = '<div class="sec-card"><b>1. Scannez ce QR code</b><p>Avec Google Authenticator, Microsoft Authenticator ou l\'appareil photo de votre iPhone (Mots de passe).</p>' +
+        (qr ? '<img class="sec-qr" alt="QR code de double authentification" src="' + esc(qr) + '">' : '') +
+        '<p class="sec-secret">Ou saisissez cette clé : <code>' + esc(f.secret) + '</code></p>' +
+        '<b>2. Saisissez le code à 6 chiffres affiché</b><div class="adm-field"><input id="sec-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" aria-label="Code à 6 chiffres"></div>' +
+        '<p class="adm-err" id="sec-code-err" hidden></p><div class="adm-actions"><button class="btn" type="button" id="sec-verify">Vérifier et activer</button></div></div>';
+      $('#sec-verify').addEventListener('click', function () {
+        var code = $('#sec-code').value.replace(/\D/g, '');
+        if (code.length !== 6) { $('#sec-code-err').textContent = 'Saisissez les 6 chiffres.'; $('#sec-code-err').hidden = false; return; }
+        Store.mfaVerify(enrollCtx.id, code).then(function () { toast('Double authentification activée ✓'); renderSec(); }, function () { $('#sec-code-err').textContent = 'Code incorrect. Vérifiez l\'heure de votre téléphone et réessayez.'; $('#sec-code-err').hidden = false; });
+      });
+    }, function (er) { box.innerHTML = '<p class="adm-err">' + esc(er && er.message ? er.message : 'Activation impossible.') + '</p>'; });
+  }
+  $('#adm-sec').addEventListener('click', function () { renderSec(); openModal($('#sec-modal')); });
 
   /* ============ APPARITION AU DÉFILEMENT ============ */
   var reveals = $$('.reveal');
@@ -2056,6 +2957,7 @@ body.editing .proj .pcount,body.editing .prod .pcount{bottom:12px}
     .catch(function (e) { loadErr = e; console.info('[Mloza] Supabase non joignable depuis cette page (normal dans un aperçu ou hors connexion) : contenu par défaut affiché. Détail : ' + ((e && e.message) || e)); })
     .then(function () { Store.onAuth(onAuthChange, openRecovery); checkHash(); });
 })();
+
 
 </script>
 </body>
