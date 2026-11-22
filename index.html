@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-A7e0XNyvumdv+kUHpWM531JQ9Glii3Rd7dbp7DNmLKg=' 'sha256-wSP36HSTR3i32J/ufc6N4myFiiw6kv16P4cDlKai+R8='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://jealzqqhdrsryuuvtxya.supabase.co wss://jealzqqhdrsryuuvtxya.supabase.co; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'self'; manifest-src 'self'; worker-src 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Z9gnOrJgl/tx/1S0KW/oqS5j9kbXDMMJOyWqkveIAuE=' 'sha256-wSP36HSTR3i32J/ufc6N4myFiiw6kv16P4cDlKai+R8='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://jealzqqhdrsryuuvtxya.supabase.co wss://jealzqqhdrsryuuvtxya.supabase.co; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'self'; manifest-src 'self'; worker-src 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <title>Mloza-Construction</title>
@@ -2390,10 +2390,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   function openPartner(id) {
     var p = S.lists.partners.filter(function (x) { return x.id === id; })[0]; if (!p) return;
-    var src = safeSrc(p.img), url = safeUrl(p.url), host = url ? url.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0] : '';
+    var roleTxt = String(p.role || '').trim(), roleUrl = (roleTxt.match(/(?:https?:\/\/|www\.)\S+/i) || [''])[0];
+    var src = safeSrc(p.img), url = safeUrl(p.url) || safeUrl(roleUrl), host = url ? url.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0] : '';
+    if (roleUrl) roleTxt = roleTxt.replace(roleUrl, '').trim();
     $('#pt-logo').innerHTML = src ? '<img src="' + esc(src) + '" alt="Logo ' + esc(p.name) + '">' : '<span class="pt-noimg">' + esc(p.name) + '</span>';
     $('#pt-name').textContent = p.name || 'Partenaire';
-    $('#pt-role').textContent = p.role || 'Partenaire de confiance de Mloza-Construction.';
+    $('#pt-role').textContent = roleTxt || 'Partenaire de confiance de Mloza-Construction.';
     var go = $('#pt-go'), note = $('#pt-note');
     if (url) { go.href = url; go.hidden = false; $('#pt-cta').hidden = false; go.querySelector('span').textContent = 'Aller sur le site de ' + (p.name || host); note.textContent = 'Vous allez quitter le site Mloza-Construction pour ' + host + ' (nouvel onglet).'; note.hidden = false; }
     else { go.hidden = true; $('#pt-cta').hidden = true; go.removeAttribute('href'); note.hidden = true; }
@@ -2586,7 +2588,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     testimonials: { one: 'un témoignage', fields: [['quote', 'Témoignage', 'textarea', 1], ['name', 'Nom du client', 'text', 1], ['role', 'Fonction / entreprise', 'text'], ['img', 'Photo', 'image']] },
     posts: { one: 'un article', fields: [['title', 'Titre', 'text', 1], ['date', 'Date affichée', 'text', 1], ['cat', 'Rubrique (ex. Chantier)', 'text'], ['read', 'Temps de lecture (ex. 4 min)', 'text'], ['body', "Texte de l'article", 'textarea'], ['img', 'Photo principale', 'image'], ['gallery', 'Photos supplémentaires', 'gallery'], ['video', 'Vidéo (facultative) : lien YouTube… ou fichier', 'video']] },
     media: { one: 'une photo ou une vidéo à la galerie', fields: [['title', 'Titre'], ['caption', 'Légende / description', 'textarea'], ['img', 'Photo (ou image de couverture si c\'est une vidéo)', 'image'], ['video', 'Vidéo publicitaire : lien YouTube, Facebook… ou fichier', 'video']] },
-    partners: { one: 'un logo partenaire', fields: [['name', 'Nom du partenaire', 'text', 1], ['role', 'Rôle du partenariat (affiché quand on clique sur le logo)', 'textarea'], ['img', 'Logo (image PNG ou JPG)', 'image'], ['url', 'Site web (facultatif)', 'text']] }
+    partners: { one: 'un logo partenaire', fields: [['name', 'Nom du partenaire', 'text', 1], ['url', 'Site web du partenaire (lien exact, ouvert quand on clique sur le bouton)', 'text', 1], ['role', 'Description du partenariat : activité de l\'entreprise, intérêt du partenariat (texte seulement)', 'textarea'], ['img', 'Logo (image PNG ou JPG)', 'image']] }
   };
   var ICONS = ['◧', '◉', '◆', '★', '▲', '●', '■', '⬢', '✓'];
   var MONTHS = ['Jan', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
@@ -2611,7 +2613,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     $('#edit-fields').innerHTML = sc.fields.map(function (f) {
       var k = f[0], lab = esc(f[1]) + (f[3] ? ' <i>*</i>' : ''), v = vals[k] == null ? '' : vals[k], idf = 'ef-' + k;
       if (k === '#') return '<div class="adm-group">' + esc(f[1]) + '</div>';
-      if (f[2] === 'textarea') return '<div class="adm-field"><label for="' + idf + '">' + lab + '</label><textarea id="' + idf + '" data-k="' + k + '" rows="4">' + esc(v) + '</textarea></div>';
+      if (f[2] === 'textarea') return '<div class="adm-field"><label for="' + idf + '">' + lab + '</label><textarea id="' + idf + '" data-k="' + k + '" rows="4"' + (editCtx.coll === 'partners' && k === 'role' ? ' placeholder="Ex. : Agence de communication comorienne qui réalise nos vidéos et nos photos de chantier."' : '') + '>' + esc(v) + '</textarea></div>';
       if (f[2] === 'icon') return '<div class="adm-field"><label for="' + idf + '">' + lab + '</label><select id="' + idf + '" data-k="' + k + '">' + ICONS.map(function (ic) { return '<option' + (ic === v ? ' selected' : '') + '>' + ic + '</option>'; }).join('') + '</select></div>';
       if (f[2] === 'image') { editCtx.imgs[k] = safeSrc(v); return '<div class="adm-field"><label>' + lab + '</label><div class="img-pick" data-ik="' + k + '"></div></div>'; }
       if (f[2] === 'video') { editCtx.vids[k] = typeof v === 'string' ? v : ''; return '<div class="adm-field"><label for="ef-' + k + '">' + lab + '</label><div class="vid-pick" data-vk="' + k + '"></div></div>'; }
@@ -2622,7 +2624,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           (opts.length ? '' : '<option value="">— choisir —</option>') + opts.map(function (c) { return '<option' + (c === v ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') +
           '<option value="__new">＋ Nouvelle catégorie…</option></select><input id="ef-newcat" class="hidden" placeholder="Nom de la nouvelle catégorie" maxlength="80" aria-label="Nom de la nouvelle catégorie"></div>';
       }
-      return '<div class="adm-field"><label for="' + idf + '">' + lab + '</label><input id="' + idf + '" data-k="' + k + '" value="' + esc(v) + '" maxlength="300"' + (k === 'url' ? ' placeholder="www.exemple.com"' : '') + '></div>';
+      return '<div class="adm-field"><label for="' + idf + '">' + lab + '</label><input id="' + idf + '" data-k="' + k + '" value="' + esc(v) + '" maxlength="300"' + (k === 'url' ? ' placeholder="https://www.site-du-partenaire.com"' : '') + '></div>';
     }).join('');
     $$('.img-pick', $('#edit-fields')).forEach(renderPick);
     $$('.gal-pick', $('#edit-fields')).forEach(renderGal);
