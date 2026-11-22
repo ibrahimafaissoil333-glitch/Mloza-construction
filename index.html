@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-7E0XMkOltAGgZjlUWNJja+k9c/8ZCjpVfCX2IwOwigM=' 'sha256-wSP36HSTR3i32J/ufc6N4myFiiw6kv16P4cDlKai+R8='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://jealzqqhdrsryuuvtxya.supabase.co wss://jealzqqhdrsryuuvtxya.supabase.co; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'self'; manifest-src 'self'; worker-src 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-A7e0XNyvumdv+kUHpWM531JQ9Glii3Rd7dbp7DNmLKg=' 'sha256-wSP36HSTR3i32J/ufc6N4myFiiw6kv16P4cDlKai+R8='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://jealzqqhdrsryuuvtxya.supabase.co wss://jealzqqhdrsryuuvtxya.supabase.co; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'self'; manifest-src 'self'; worker-src 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <title>Mloza-Construction</title>
@@ -2282,14 +2282,25 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   $('#tdots').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { showT(+b.dataset.i); auto(); } });
 
   /* ============ PARTENAIRES (« Ils nous font confiance ») ============ */
-  function safeUrl(u) { return /^https?:\/\//i.test(u || '') ? u : (u && /^[\w.-]+\.[a-z]{2,}/i.test(u) ? 'https://' + u : ''); }
+  // Lien partenaire : accepte « www.site.com », « site.com/page », « https://… » ; répare un lien collé au milieu d'un ancien texte
+  function cleanUrl(u) {
+    u = String(u || '').trim().replace(/\s+/g, ''); if (!u) return { url: '', ok: true };
+    var i = u.search(/https?:\/\//i), messy = i > 0;
+    if (messy) u = u.slice(i);
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    var x; try { x = new URL(u); } catch (e) { return { url: '', ok: false }; }
+    if (!/^https?:$/.test(x.protocol) || !/^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(x.hostname) || x.username || x.password) return { url: '', ok: false };
+    if (messy) return { url: x.origin + '/', ok: false };
+    return { url: x.href, ok: true };
+  }
+  function safeUrl(u) { return cleanUrl(u).url; }
   function renderPartners() {
     $('#partners').innerHTML = S.lists.partners.map(function (p) {
       var src = safeSrc(p.img), url = safeUrl(p.url), host = url ? url.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0] : '';
       var inner = src ? '<img src="' + esc(src) + '" alt="' + esc(p.name) + '" loading="lazy">' : '<em' + ed('partners', p.id, 'name') + ' style="font-style:normal">' + esc(p.name) + '</em>';
       if (editing) {
         inner += '<span class="p-edit"><button type="button" class="logo-btn" data-act="photo" data-coll="partners" data-id="' + esc(p.id) + '">📷 ' + (src ? 'Changer le logo' : 'Ajouter le logo') + '</button>' +
-          '<button type="button" class="logo-btn logo-btn--link" data-act="edit" data-coll="partners" data-id="' + esc(p.id) + '">🔗 ' + (url ? 'Lien : ' + esc(host) : 'Ajouter le lien du site') + '</button>' +
+          '<button type="button" class="logo-btn logo-btn--link" data-act="edit" data-coll="partners" data-id="' + esc(p.id) + '">' + (p.url && !cleanUrl(p.url).ok ? '⚠ Lien à corriger' : '🔗 ' + (url ? 'Lien : ' + esc(host) : 'Ajouter le lien du site')) + '</button>' +
           '<button type="button" class="logo-btn logo-btn--link" data-act="edit" data-coll="partners" data-id="' + esc(p.id) + '">📝 ' + (p.role ? 'Modifier la description' : 'Ajouter la description') + '</button></span>';
         return '<span class="p-tile editable-item' + (src ? ' p-logo' : '') + '">' + tools('partners', p.id) + inner + '</span>';
       }
@@ -2699,6 +2710,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       base[f[0]] = v;
     });
     if (coll === 'media' && !base.img && !base.video) missing.push('une photo ou une vidéo');
+    if (coll === 'partners' && base.url) { var cu = cleanUrl(base.url); if (!cu.ok) { var ue = $('[data-k="url"]', form); if (ue) ue.classList.add('invalid'); missing.push('Site web : lien invalide (exemple : https://rooshdymedias.com)'); } else base.url = cu.url; }
     if (missing.length) { $('#edit-err').textContent = 'À compléter : ' + missing.join(', ') + '.'; $('#edit-err').hidden = false; return; }
     if (coll === 'categories' && catList().some(function (c) { return sameName(c.name, base.name) && !sameName(c.name, editCtx.oldName); })) {
       $('#edit-err').textContent = 'Une catégorie porte déjà ce nom.'; $('#edit-err').hidden = false; return;
