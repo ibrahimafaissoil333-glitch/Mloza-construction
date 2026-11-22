@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Z9gnOrJgl/tx/1S0KW/oqS5j9kbXDMMJOyWqkveIAuE=' 'sha256-wSP36HSTR3i32J/ufc6N4myFiiw6kv16P4cDlKai+R8='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://jealzqqhdrsryuuvtxya.supabase.co wss://jealzqqhdrsryuuvtxya.supabase.co; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'self'; manifest-src 'self'; worker-src 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ehlroYBCR6arHMt4lUdYL0+dydGx3FI1lMQE8ou96E8=' 'sha256-wSP36HSTR3i32J/ufc6N4myFiiw6kv16P4cDlKai+R8='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://jealzqqhdrsryuuvtxya.supabase.co wss://jealzqqhdrsryuuvtxya.supabase.co; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'self'; manifest-src 'self'; worker-src 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <title>Mloza-Construction</title>
@@ -74,8 +74,8 @@ h1,h2,h3{margin:0}
 .topbar .container{padding:9px var(--pad-r) 9px var(--pad-l);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
 .topbar-r{display:flex;gap:18px;align-items:center}
 .socials{display:flex;gap:10px}
-.socials a{width:22px;height:22px;border-radius:50%;background:var(--ink-3);display:grid;place-items:center;font-size:10px;color:#fff;transition:background .2s}
-.socials a:hover{background:var(--bronze)}
+.socials .soc{width:24px;height:24px;border-radius:50%;background:var(--ink-3);display:grid;place-items:center;color:#fff;border:0;padding:0;cursor:pointer;transition:background .2s,transform .2s}
+.socials .soc:hover,.socials .soc:focus-visible{background:var(--bronze);transform:translateY(-2px)}
 
 /* ---------- En-tête ---------- */
 .header{background:#fff;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;box-shadow:0 2px 16px rgba(28,25,21,.08)}
@@ -823,6 +823,14 @@ body.editing .partners .p-tile{padding-top:48px;min-height:180px}
 .pt-cta[hidden]{display:none}
 .pt-go{display:flex;justify-content:center;width:100%}
 @media (max-width:420px){.pt-cta span{white-space:normal;text-align:center}}
+
+/* Réseaux sociaux */
+.socials[hidden]{display:none}
+.socials .soc--off{opacity:.4;outline:1px dashed var(--bronze-l);outline-offset:2px}
+.socials .soc-edit{background:var(--bronze);color:#fff;border:0;padding:4px 10px;font:700 11px var(--f-title);text-transform:uppercase;letter-spacing:.4px;cursor:pointer}
+.socials--foot{margin-top:16px;gap:12px}
+.socials--foot .soc{width:34px;height:34px}
+.socials--foot .soc svg{width:16px;height:16px}
 </style>
 </head>
 <body>
@@ -837,11 +845,7 @@ body.editing .partners .p-tile{padding-top:48px;min-height:180px}
     <div class="topbar-r">
       <span class="tb-phones">☏ <a data-link="tel" data-n="1" href="tel:+2693409852"><span data-t="phone">+269 340 98 52</span></a> · <a data-link="tel" data-n="2" href="tel:+2694409852"><span data-t="phone2">+269 440 98 52</span></a></span>
       <span data-t="country">Comores</span>
-      <div class="socials">
-        <a href="#" aria-label="LinkedIn">in</a>
-        <a href="#" aria-label="Facebook">f</a>
-        <a href="#" aria-label="X">x</a>
-      </div>
+      <div class="socials" data-socials></div>
     </div>
   </div>
 </div>
@@ -1116,6 +1120,7 @@ body.editing .partners .p-tile{padding-top:48px;min-height:180px}
           <span class="foot-phones"><a data-link="tel" data-n="2" href="tel:+2694409852"><span data-t="phone2">+269 440 98 52</span></a><a data-link="wa" data-n="2" href="https://wa.me/2694409852" target="_blank" rel="noopener" class="wa-mini" aria-label="WhatsApp +269 440 98 52">WhatsApp</a></span>
           <a data-link="mail" href="mailto:mlozabdou2012@gmail.com"><span data-t="email">mlozabdou2012@gmail.com</span></a>
         </div>
+        <div class="socials socials--foot" data-socials></div>
       </div>
       <div>
         <h4 data-t="foot_news">Newsletter</h4>
@@ -1198,6 +1203,21 @@ body.editing .partners .p-tile{padding-top:48px;min-height:180px}
       <small id="pt-note" hidden></small>
     </div>
   </div>
+</div>
+
+<!-- Liens des réseaux sociaux (administrateur) -->
+<div class="modal" id="soc-modal" hidden>
+  <form class="adm-modal" id="soc-form" role="dialog" aria-modal="true" aria-labelledby="soc-t" novalidate style="width:min(520px,100%)">
+    <button class="close" type="button" data-close aria-label="Fermer">×</button>
+    <h3 id="soc-t">Réseaux sociaux</h3>
+    <p class="sub">Collez le lien de chaque page. Laissez vide un réseau que vous n'utilisez pas : son icône sera cachée pour les visiteurs.</p>
+    <div id="soc-fields"></div>
+    <p class="adm-err" id="soc-err" hidden></p>
+    <div class="adm-actions">
+      <button class="btn btn--ghost" type="button" data-close>Annuler</button>
+      <button class="btn" type="submit" id="soc-save">Enregistrer</button>
+    </div>
+  </form>
 </div>
 
 <!-- Fenêtre mentions légales / confidentialité -->
@@ -2407,7 +2427,47 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   });
   $('#pt-go').addEventListener('click', function () { setTimeout(function () { closeModal($('#partner-modal')); }, 50); });
 
-  function renderAll() { renderServices(); renderStats(); renderProjects(); renderMedia(); renderProducts(); renderTeam(); renderTestimonials(); renderPartners(); renderPosts(); renderVideoTools(); renderCart(); }
+  /* ============ RÉSEAUX SOCIAUX (liens modifiables par l'administrateur) ============ */
+  var SOCIALS = [
+    ['facebook', 'Facebook', 'https://www.facebook.com/votre-page', '<path d="M14 8h3V4h-3c-2.8 0-4 1.7-4 4.3V10H7v4h3v8h4v-8h3l1-4h-4V8.6c0-.4.3-.6.6-.6z"/>'],
+    ['instagram', 'Instagram', 'https://www.instagram.com/votre-compte', '<rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.3" cy="6.7" r="1.3"/>'],
+    ['tiktok', 'TikTok', 'https://www.tiktok.com/@votre-compte', '<path d="M16.5 3c.4 2.2 1.8 3.7 4 4v3.3c-1.5 0-2.9-.4-4-1.2v6.6A5.8 5.8 0 1 1 10.7 10v3.4a2.5 2.5 0 1 0 2.5 2.4V3h3.3z"/>'],
+    ['linkedin', 'LinkedIn', 'https://www.linkedin.com/company/votre-entreprise', '<path d="M4 9h3.6v11H4zM5.8 3.5a2 2 0 1 1 0 4.1 2 2 0 0 1 0-4.1zM9.8 9h3.4v1.6c.5-.9 1.7-1.9 3.6-1.9 3.8 0 4.5 2.4 4.5 5.6V20h-3.6v-5c0-1.2 0-2.8-1.7-2.8s-2 1.3-2 2.7V20H9.8z"/>'],
+    ['x', 'X (Twitter)', 'https://x.com/votre-compte', '<path d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L2 3h6.4l4.4 5.8zm-1.1 16.2h1.7L7.4 4.7H5.6z"/>']
+  ];
+  function socialUrl(k) { return safeUrl(S.texts['social_' + k] || ''); }
+  function renderSocials() {
+    var html = SOCIALS.map(function (s) {
+      var url = socialUrl(s[0]), icon = '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true">' + s[3] + '</svg>';
+      if (editing) return '<button type="button" class="soc soc--' + s[0] + (url ? '' : ' soc--off') + '" data-socedit title="' + esc(s[1]) + (url ? ' : ' + esc(url) : ' : ajouter le lien') + '" aria-label="Modifier le lien ' + esc(s[1]) + '">' + icon + '</button>';
+      return url ? '<a class="soc soc--' + s[0] + '" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(s[1]) + '" aria-label="' + esc(s[1]) + ' (nouvel onglet)">' + icon + '</a>' : '';
+    }).join('');
+    if (editing) html += '<button type="button" class="soc-edit" data-socedit>✎ Liens réseaux</button>';
+    $$('[data-socials]').forEach(function (el) { el.innerHTML = html; el.hidden = !html; });
+  }
+  function openSocials() {
+    $('#soc-fields').innerHTML = SOCIALS.map(function (s) {
+      return '<div class="adm-field"><label for="soc-' + s[0] + '">' + esc(s[1]) + '</label><input id="soc-' + s[0] + '" data-soc="' + s[0] + '" type="url" maxlength="300" placeholder="' + esc(s[2]) + '" value="' + esc(S.texts['social_' + s[0]] || '') + '"></div>';
+    }).join('');
+    $('#soc-err').hidden = true; openModal($('#soc-modal'));
+  }
+  document.addEventListener('click', function (e) { if (editing && e.target.closest('[data-socedit]')) { e.preventDefault(); openSocials(); } });
+  $('#soc-form').addEventListener('submit', function (e) {
+    e.preventDefault(); if (!isAdmin) return;
+    var patch = {}, bad = [];
+    $$('[data-soc]', this).forEach(function (inp) {
+      var v = inp.value.trim(), cu = cleanUrl(v), name = SOCIALS.filter(function (s) { return s[0] === inp.dataset.soc; })[0][1];
+      inp.classList.toggle('invalid', !!v && !cu.ok);
+      if (v && !cu.ok) bad.push(name); else patch['social_' + inp.dataset.soc] = cu.url;
+    });
+    if (bad.length) { $('#soc-err').textContent = 'Lien invalide : ' + bad.join(', ') + ' (exemple : https://www.facebook.com/votre-page).'; $('#soc-err').hidden = false; return; }
+    var btn = $('#soc-save'); btn.disabled = true; btn.textContent = 'Enregistrement…';
+    Store.saveTexts(patch).then(function () {
+      Object.assign(S.texts, patch); renderSocials(); closeModal($('#soc-modal')); toast('Liens des réseaux enregistrés');
+    }, function (er) { $('#soc-err').textContent = errMsg(er); $('#soc-err').hidden = false; }).then(function () { btn.disabled = false; btn.textContent = 'Enregistrer'; });
+  });
+
+  function renderAll() { renderServices(); renderStats(); renderProjects(); renderMedia(); renderProducts(); renderTeam(); renderTestimonials(); renderPartners(); renderPosts(); renderVideoTools(); renderCart(); renderSocials(); }
 
   /* ======================================================================
      PANIER
