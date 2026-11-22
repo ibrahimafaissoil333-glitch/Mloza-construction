@@ -2293,7 +2293,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           '<button type="button" class="logo-btn logo-btn--link" data-act="edit" data-coll="partners" data-id="' + esc(p.id) + '">📝 ' + (p.role ? 'Modifier la description' : 'Ajouter la description') + '</button></span>';
         return '<span class="p-tile editable-item' + (src ? ' p-logo' : '') + '">' + tools('partners', p.id) + inner + '</span>';
       }
-      // Visiteur : 1er clic = fenêtre (logo agrandi + rôle du partenaire), 2e clic = bouton vers son site
+      // Visiteur : si le partenaire a un site, le clic sur le logo ouvre directement son site (nouvel onglet)
+      if (url) return '<a class="p-tile p-click' + (src ? ' p-logo' : '') + '" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" aria-label="' + esc(p.name) + ' — aller sur son site (nouvel onglet)">' + inner + '<span class="p-visit">Aller sur le site ↗</span></a>';
+      // Sans site renseigné : fenêtre (logo agrandi + rôle du partenaire)
       return '<button type="button" class="p-tile p-click' + (src ? ' p-logo' : '') + '" data-pid="' + esc(p.id) + '" aria-haspopup="dialog" aria-label="' + esc(p.name) + ' — voir le partenariat">' + inner + '<span class="p-visit">Voir le partenariat</span></button>';
     }).join('') + addBtn('partners', 'Ajouter un logo partenaire', 'add-btn--inline');
   }
@@ -2390,7 +2392,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
   $('#partners').addEventListener('click', function (e) {
     if (editing) return;
-    var t = e.target.closest('.p-click'); if (t) openPartner(t.dataset.pid);
+    var t = e.target.closest('.p-click'); if (t && t.dataset.pid) openPartner(t.dataset.pid);
   });
   $('#pt-go').addEventListener('click', function () { setTimeout(function () { closeModal($('#partner-modal')); }, 50); });
 
