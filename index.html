@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-BpzBLtypAD1npJ/8sccJYaRgIaufZH3kotdh3MXCR80=' 'sha256-wSP36HSTR3i32J/ufc6N4myFiiw6kv16P4cDlKai+R8='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://jealzqqhdrsryuuvtxya.supabase.co wss://jealzqqhdrsryuuvtxya.supabase.co; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'self'; manifest-src 'self'; worker-src 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-7E0XMkOltAGgZjlUWNJja+k9c/8ZCjpVfCX2IwOwigM=' 'sha256-wSP36HSTR3i32J/ufc6N4myFiiw6kv16P4cDlKai+R8='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://jealzqqhdrsryuuvtxya.supabase.co wss://jealzqqhdrsryuuvtxya.supabase.co; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'self'; manifest-src 'self'; worker-src 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <title>Mloza-Construction</title>
@@ -816,6 +816,13 @@ body.editing .partners .p-tile{padding-top:48px;min-height:180px}
 .pt-go[hidden]{display:none}
 .pt-body small{display:block;margin-top:10px;color:var(--muted);font-size:12px}
 @media (max-width:560px){.pt-body{padding:22px 20px 26px}.pt-logo{min-height:170px;padding:30px 20px}}
+
+.pt-cta{display:flex;align-items:center;gap:14px;margin:4px 0 16px;font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.8px;color:var(--bronze)}
+.pt-cta::before,.pt-cta::after{content:"";flex:1;height:2px;background:var(--bronze);opacity:.55}
+.pt-cta span{border:0;padding:0;white-space:nowrap}
+.pt-cta[hidden]{display:none}
+.pt-go{display:flex;justify-content:center;width:100%}
+@media (max-width:420px){.pt-cta span{white-space:normal;text-align:center}}
 </style>
 </head>
 <body>
@@ -1186,6 +1193,7 @@ body.editing .partners .p-tile{padding-top:48px;min-height:180px}
       <h3 id="pt-name"></h3>
       <h4>Rôle du partenariat</h4>
       <p id="pt-role"></p>
+      <div class="pt-cta" id="pt-cta"><span>Cliquez pour vous diriger sur ce site</span></div>
       <a class="btn pt-go" id="pt-go" target="_blank" rel="noopener noreferrer" hidden><span>Aller sur leur site</span> ↗</a>
       <small id="pt-note" hidden></small>
     </div>
@@ -2376,8 +2384,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     $('#pt-name').textContent = p.name || 'Partenaire';
     $('#pt-role').textContent = p.role || 'Partenaire de confiance de Mloza-Construction.';
     var go = $('#pt-go'), note = $('#pt-note');
-    if (url) { go.href = url; go.hidden = false; go.querySelector('span').textContent = 'Aller sur le site de ' + (p.name || host); note.textContent = 'Vous allez quitter le site Mloza-Construction pour ' + host + ' (nouvel onglet).'; note.hidden = false; }
-    else { go.hidden = true; go.removeAttribute('href'); note.hidden = true; }
+    if (url) { go.href = url; go.hidden = false; $('#pt-cta').hidden = false; go.querySelector('span').textContent = 'Aller sur le site de ' + (p.name || host); note.textContent = 'Vous allez quitter le site Mloza-Construction pour ' + host + ' (nouvel onglet).'; note.hidden = false; }
+    else { go.hidden = true; $('#pt-cta').hidden = true; go.removeAttribute('href'); note.hidden = true; }
     openModal($('#partner-modal'));
   }
   $('#partners').addEventListener('click', function (e) {
